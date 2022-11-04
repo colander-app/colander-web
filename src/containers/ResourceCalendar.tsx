@@ -1,7 +1,7 @@
-import { EventBubble } from '../components/EventBubble'
+import { Fragment, PropsWithChildren } from 'react'
+import { observer } from 'mobx-react-lite'
 import { NewEventHandle } from '../components/NewEventHandle'
 import { DateList } from './DateList'
-import { IEvent, IResource } from '../store'
 import {
   ResourceCalendarBlock,
   CalendarRow,
@@ -10,18 +10,19 @@ import {
   RowSeparator,
   DateBlock,
 } from '../components/base/styled'
-import { Fragment, PropsWithChildren } from 'react'
-import { observer } from 'mobx-react-lite'
 import {
   getEventOffsetBuckets,
   getEventOffsetsById,
   filterEventsStartingOn,
 } from '../util/events'
+import { IResourceModel } from '../store/resource'
+import { IEventModel } from '../store/event'
+import { ResponsiveEventBubble } from './ResponsiveEventBubble'
 
 interface Props {
-  resources: IResource[]
-  onMoveEvent: (event: IEvent, start: Date, end: Date) => void
-  onAddEvent: (resource: IResource, start: Date, end: Date) => void
+  resources: IResourceModel[]
+  onMoveEvent: (event: IEventModel, start: Date, end: Date) => void
+  onAddEvent: (resource: IResourceModel, start: Date, end: Date) => void
   onSelectEvent: (id: string) => void
   startDate: Date
   numOfDays: number
@@ -32,6 +33,8 @@ interface Props {
 
 const makeGetHeight = (height: number, margin: number) => (count: number) =>
   count * height + (count + 1) * margin
+
+const weekdayLabels = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su']
 
 export const ResourceCalendar: React.FC<Props & PropsWithChildren> = observer(
   ({
@@ -48,13 +51,16 @@ export const ResourceCalendar: React.FC<Props & PropsWithChildren> = observer(
   }) => {
     const getHeight = makeGetHeight(bubbleHeight, bubbleMargin)
     return (
-      <ResourceCalendarBlock>
+      <ResourceCalendarBlock className="column pr-0 pt-0">
         <CalendarRow isHeader>
           <ResourceLabelBlock />
           <DateList startDate={startDate} count={numOfDays}>
             {({ date, isWeekend }) => (
               <HeaderLabelBlock isWeekend={isWeekend}>
-                {date.date()}
+                <span className="is-block">
+                  {weekdayLabels[date.weekday()]}
+                </span>
+                <span className="is-block">{date.date()}</span>
               </HeaderLabelBlock>
             )}
           </DateList>
@@ -75,25 +81,22 @@ export const ResourceCalendar: React.FC<Props & PropsWithChildren> = observer(
                       {resource.events
                         .filter(filterEventsStartingOn(date))
                         .map((event) => (
-                          <EventBubble
+                          <ResponsiveEventBubble
                             key={event.id}
-                            start={event.start}
-                            end={event.end}
-                            offset={getHeight(eventOffsets[event.id])}
+                            event={event}
                             width={cellWidth}
+                            offset={getHeight(eventOffsets[event.id])}
+                            onClick={() => onSelectEvent(event.id)}
                             onMove={(start, end) =>
                               onMoveEvent(event, start, end)
                             }
-                            onClick={() => onSelectEvent(event.id)}
-                          >
-                            <span style={{ fontSize: 11 }}>{event.label}</span>
-                          </EventBubble>
+                          />
                         ))}
                     </DateBlock>
                   )}
                 </DateList>
               </CalendarRow>
-              <CalendarRow isHeader>
+              <CalendarRow>
                 <ResourceLabelBlock />
                 <DateList startDate={startDate} count={numOfDays}>
                   {({ date, isWeekend }) => (

@@ -6,7 +6,7 @@ interface DateBlockProps {
 export const DateBlock = styled.div<DateBlockProps>`
   position: relative;
   min-width: 40px;
-  min-height: 70px;
+  min-height: 50px;
   border-right: ${(props) => props.theme.rowBorder};
   text-align: center;
   ${({ isWeekend, theme }) =>
@@ -30,8 +30,8 @@ export const ResourceLabelBlock = styled.div`
   align-items: center;
   justify-content: right;
   box-sizing: border-box;
-  min-width: 80px;
-  max-width: 80px;
+  min-width: 100px;
+  max-width: 100px;
   padding-right: 10px;
   border-right: ${(props) => props.theme.rowBorder};
 `
@@ -53,7 +53,6 @@ export const RowSeparator = styled.div`
 `
 
 export const ResourceCalendarBlock = styled.div`
-  width: 100%;
   overflow-x: hidden;
   margin-bottom: 100px;
 `

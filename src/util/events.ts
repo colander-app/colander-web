@@ -1,7 +1,7 @@
 import moment from 'moment'
-import { IEvent } from '../store'
+import { IEventModel } from '../store/event'
 
-export const doEventsOverlap = (e1: IEvent, e2: IEvent): boolean =>
+export const doEventsOverlap = (e1: IEventModel, e2: IEventModel): boolean =>
   moment(e1.start).isBetween(e2.start, e2.end, 'day', '[]') ||
   moment(e1.end).isBetween(e2.start, e2.end, 'day', '[]') ||
   moment(e2.start).isBetween(e1.start, e1.end, 'day', '[]')
@@ -10,9 +10,9 @@ export const doEventsOverlap = (e1: IEvent, e2: IEvent): boolean =>
  * Find out how many events will be pushing the current event down on a given date block
  */
 export const getEventOffsetBuckets = (
-  events: IEvent[]
-): Array<Array<IEvent>> => {
-  const offsetBuckets: Array<Array<IEvent>> = []
+  events: Array<Readonly<IEventModel>>
+): Array<Array<IEventModel>> => {
+  const offsetBuckets: Array<Array<IEventModel>> = []
   events.forEach((event) => {
     let bucketIndex = offsetBuckets.findIndex(
       (bucket) => !bucket.some((e) => doEventsOverlap(e, event))
@@ -27,7 +27,7 @@ export const getEventOffsetBuckets = (
 }
 
 export const getEventOffsetsById = (
-  buckets: Array<Array<IEvent>>
+  buckets: Array<Array<Readonly<IEventModel>>>
 ): Record<string, number> => {
   return buckets.reduce(
     (offsetMap, bucket, offset) => ({
@@ -45,5 +45,5 @@ export const getEventOffsetsById = (
 }
 
 export const filterEventsStartingOn =
-  (date: moment.Moment) => (event: IEvent) =>
+  (date: moment.Moment) => (event: IEventModel) =>
     date.isSame(event.start, 'day')

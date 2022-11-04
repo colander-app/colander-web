@@ -7,6 +7,8 @@ import { ResourceCalendarView } from './views/ResourceCalendarView'
 import { RootStoreProvider } from './context/RootStoreContext'
 import { EventDetailSidebar } from './views/EventDetailSidebar'
 
+import 'react-datepicker/dist/react-datepicker.css'
+
 const router = createBrowserRouter([
   {
     path: '/',
