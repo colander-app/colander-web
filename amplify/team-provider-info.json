@@ -20,6 +20,16 @@
           "appId": "dsy9i9m3l913c",
           "type": "cicd"
         }
+      },
+      "function": {
+        "AdminQueriesd76b4904": {
+          "deploymentBucketName": "amplify-colandarapp-dev-151503-deployment",
+          "s3Key": "amplify-builds/AdminQueriesd76b4904-547a684d3249336d7862-build.zip"
+        }
+      },
+      "api": {
+        "AdminQueries": {},
+        "colandarapp": {}
       }
     }
   }
