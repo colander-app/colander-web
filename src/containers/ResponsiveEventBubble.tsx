@@ -19,6 +19,8 @@ export const ResponsiveEventBubble = observer(
         end={event.end}
         offset={offset}
         width={width}
+        striped={event.tentative}
+        bgColor={event.color}
         onClick={onClick}
         onMove={onMove}
       >

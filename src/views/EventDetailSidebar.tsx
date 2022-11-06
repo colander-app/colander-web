@@ -47,26 +47,41 @@ export const EventDetailSidebar = observer(() => {
     return null
   }
 
-  const changeStart = (d: Date) => {
-    event.changeDates(d, event.end)
+  const changeTentative = (checked: boolean) => {
+    event.setTentative(checked)
   }
 
-  const changeEnd = (d: Date) => {
-    event.changeDates(event.start, d)
+  const changeStart = (newStart: Date) => {
+    event.changeDates(newStart, event.end)
   }
 
-  const changeLabel = (value: string) => {
-    event.updateLabel(value)
+  const changeEnd = (newEnd: Date) => {
+    event.changeDates(event.start, newEnd)
+  }
+
+  const changeLabel = (text: string) => {
+    event.updateLabel(text)
   }
 
   return (
     <SidebarContainer className="column is-one-quarter is-full-mobile px-3">
       <h2 className="is-size-3 mb-4">Event Details</h2>
       <div className="field">
+        <label className="checkbox">
+          <input
+            type="checkbox"
+            checked={event.tentative}
+            onChange={(e) => changeTentative(e.target.checked)}
+          />
+          <span className="pl-2">
+            <strong>Tentative</strong>
+          </span>
+        </label>
+      </div>
+      <div className="field">
         <div className="label">Label</div>
         <div className="control">
           <input
-            key={`${event.id}-${event.label}`}
             className="input"
             type="text"
             placeholder="Label"

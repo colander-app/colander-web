@@ -45,6 +45,8 @@ const events: SnapshotIn<typeof EventModel>[] = [
     end: moment().add(8, 'days').toDate(),
     updatedAt: new Date(1667309346394),
     serverUpdatedAt: new Date(1667309346394),
+    tentative: false,
+    color: 'rgb(182, 182, 182)',
   },
   {
     id: 'e2',
@@ -53,6 +55,8 @@ const events: SnapshotIn<typeof EventModel>[] = [
     end: moment().add(10, 'days').toDate(),
     updatedAt: new Date(1667309348524),
     serverUpdatedAt: new Date(1667309348524),
+    tentative: true,
+    color: 'rgb(182, 182, 182)',
   },
   {
     id: 'e3',
@@ -61,6 +65,8 @@ const events: SnapshotIn<typeof EventModel>[] = [
     end: moment().add(13, 'days').toDate(),
     updatedAt: new Date(1667309350406),
     serverUpdatedAt: new Date(1667309350406),
+    tentative: false,
+    color: 'rgb(182, 182, 182)',
   },
   {
     id: 'e4',
@@ -69,11 +75,14 @@ const events: SnapshotIn<typeof EventModel>[] = [
     end: moment().add(18, 'days').toDate(),
     updatedAt: new Date(1667309351458),
     serverUpdatedAt: new Date(1667309351458),
+    tentative: false,
+    color: 'rgb(182, 182, 182)',
   },
 ]
 
 export const fakeWebsocket = () => {
   const callbacks = new Set()
+
   const connect: DataService = (endpoint, query, callback) => {
     console.log('Connecting to websocket with query', query)
     callbacks.add(callback)

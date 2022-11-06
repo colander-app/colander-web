@@ -67,6 +67,7 @@ export const NewEventHandle = ({ date, width, onCreate }: Props) => {
         numOfDays={numOfDays}
         cellWidth={width}
         offset={0}
+        bgColor={'green'}
       >
         <Label>{!dragging ? '+' : null}</Label>
       </EventBlock>

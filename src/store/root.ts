@@ -64,6 +64,8 @@ export const RootStoreModel = types
           id: uuidv4(),
           updatedAt: new Date(),
           serverUpdatedAt: 0,
+          tentative: false,
+          color: 'grey',
           label,
           start,
           end,

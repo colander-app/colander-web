@@ -1,13 +1,15 @@
 import moment from 'moment'
 import React, { useRef } from 'react'
 import styled from 'styled-components'
+import Color from 'color'
 import Draggable, { DraggableEventHandler } from 'react-draggable'
-import { Link } from 'react-router-dom'
 
 interface EventBlockProps {
   numOfDays: number
   cellWidth: number
   offset: number
+  bgColor: string
+  striped?: boolean
   isPlaceholder?: boolean
   isDraggingPlaceholder?: boolean
   isHoveringPlaceholder?: boolean
@@ -16,11 +18,11 @@ interface EventBlockProps {
 export const EventBlock = styled.div<EventBlockProps>`
   z-index: 10;
   position: absolute;
+  overflow-y: hidden;
   box-sizing: border-box;
   border-radius: 3px;
   min-height: 50px;
   border: solid 1px rgb(230, 230, 230);
-  background-color: ${(props) => props.theme.greenEventColor};
   width: ${({ cellWidth, numOfDays }) => cellWidth * numOfDays}px;
   margin-top: ${(props) => props.offset}px;
 
@@ -35,6 +37,20 @@ export const EventBlock = styled.div<EventBlockProps>`
       return 'opacity: 0;'
     }
   }}
+
+  ${({ striped, bgColor }) => {
+    if (striped) {
+      return `
+      background: repeating-linear-gradient(
+        -45deg,
+        ${bgColor},
+        ${bgColor} 10px,
+        ${Color(bgColor).lighten(0.1).hex()} 10px,
+        ${Color(bgColor).lighten(0.1).hex()} 20px
+      );`
+    }
+    return `background-color: ${bgColor};`
+  }}
 `
 
 interface EventBubbleProps {
@@ -42,12 +58,24 @@ interface EventBubbleProps {
   end: Date
   offset: number
   width: number
+  bgColor: string
+  striped?: boolean
   onMove: (newStart: Date, newEnd: Date) => void
   onClick: () => void
 }
 export const EventBubble: React.FC<
   React.PropsWithChildren & EventBubbleProps
-> = ({ start, end, offset, width, children, onMove, onClick }) => {
+> = ({
+  start,
+  end,
+  offset,
+  width,
+  bgColor,
+  striped,
+  children,
+  onMove,
+  onClick,
+}) => {
   const nodeRef = useRef<HTMLDivElement>(null)
   const numOfDays = moment(end).diff(start, 'days') + 1
   const gridX = width
@@ -66,7 +94,9 @@ export const EventBubble: React.FC<
         numOfDays={numOfDays}
         cellWidth={width}
         offset={offset}
+        striped={striped}
         onClick={onClick}
+        bgColor={bgColor}
       >
         {children}
       </EventBlock>

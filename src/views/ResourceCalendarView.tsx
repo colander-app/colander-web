@@ -11,6 +11,7 @@ import { IResourceModel } from '../store/resource'
 
 const useLiveResources = (resourceIds: string[], start: Date, end: Date) => {
   const { store, liveData } = useRootStore()
+
   useEffect(() => {
     return liveData.subscribe({
       type: 'Resource',
@@ -59,7 +60,7 @@ export const ResourceCalendarView = observer(() => {
   }
 
   return (
-    <div className="columns mt-0">
+    <div className="columns mt-0 mb-0">
       <ResourceCalendar
         resources={resources}
         onMoveEvent={onMoveEvent}

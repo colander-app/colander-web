@@ -8,6 +8,8 @@ export const EventModel = types
     start: types.Date,
     end: types.Date,
     label: types.string,
+    color: types.string,
+    tentative: types.boolean,
   })
   .actions((self) => ({
     changeDates(start: Date, end: Date) {
@@ -18,6 +20,10 @@ export const EventModel = types
     updateLabel(str: string) {
       self.updatedAt = new Date()
       self.label = str
+    },
+    setTentative(tentative: boolean) {
+      self.updatedAt = new Date()
+      self.tentative = tentative
     },
   }))
 export type IEventModel = Instance<typeof EventModel>
