@@ -1,0 +1,26 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-colandarapp-dev-151503-authRole",
+      "UnauthRoleArn": "arn:aws:iam::187897638412:role/amplify-colandarapp-dev-151503-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::187897638412:role/amplify-colandarapp-dev-151503-authRole",
+      "Region": "us-east-1",
+      "DeploymentBucketName": "amplify-colandarapp-dev-151503-deployment",
+      "UnauthRoleName": "amplify-colandarapp-dev-151503-unauthRole",
+      "StackName": "amplify-colandarapp-dev-151503",
+      "StackId": "arn:aws:cloudformation:us-east-1:187897638412:stack/amplify-colandarapp-dev-151503/b3b90180-5e0f-11ed-af37-0a8f5896b9df",
+      "AmplifyAppId": "dsy9i9m3l913c"
+    },
+    "categories": {
+      "auth": {
+        "colanderapp": {}
+      },
+      "hosting": {
+        "amplifyhosting": {
+          "appId": "dsy9i9m3l913c",
+          "type": "cicd"
+        }
+      }
+    }
+  }
+}
