@@ -22,36 +22,14 @@ export const RootStoreModel = types
   }))
   .actions((self) => {
     return {
-      setResources(
-        resources: Array<SnapshotOrInstance<typeof ResourceModel>>,
-        ignoreTimestamp = false
-      ) {
+      setResources(resources: Array<SnapshotOrInstance<typeof ResourceModel>>) {
         resources.forEach((resource) => {
-          const entity = self.resources.get(resource.id)
-
-          if (
-            ignoreTimestamp ||
-            !entity ||
-            resource.serverUpdatedAt > entity.serverUpdatedAt
-          ) {
-            self.resources.set(resource.id, cast(resource))
-          }
+          self.resources.set(resource.id, cast(resource))
         })
       },
-      setEvents(
-        events: Array<SnapshotOrInstance<typeof EventModel>>,
-        ignoreTimestamp = false
-      ) {
+      setEvents(events: Array<SnapshotOrInstance<typeof EventModel>>) {
         events.forEach((event) => {
-          const entity = self.events.get(event.id)
-
-          if (
-            ignoreTimestamp ||
-            !entity ||
-            event.serverUpdatedAt > entity.serverUpdatedAt
-          ) {
-            self.events.set(event.id, cast(event))
-          }
+          self.events.set(event.id, cast(event))
         })
       },
       createEvent(resourceId: string, label: string, start: Date, end: Date) {
@@ -63,15 +41,14 @@ export const RootStoreModel = types
         const event = EventModel.create({
           id: uuidv4(),
           updatedAt: new Date(),
-          serverUpdatedAt: 0,
           tentative: false,
           color: 'grey',
           label,
           start,
           end,
+          resource: resourceId,
         })
         self.events.put(event)
-        resource.addEvent(event.id)
       },
     }
   })

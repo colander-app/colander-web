@@ -1,52 +1,52 @@
 import { autorun } from 'mobx'
-import { SnapshotIn, SnapshotOut, getSnapshot } from 'mobx-state-tree'
+import { SnapshotOut, getSnapshot } from 'mobx-state-tree'
 import { EventModel } from '../store/event'
-import { ResourceModel } from '../store/resource'
+import { IResourceModel, ResourceModel } from '../store/resource'
 import { RootStoreModel, IRootStoreModel } from '../store/root'
-import { LiveModelService, makeLiveModelService } from './live-model'
 import { makeUpdaterQueue } from './updater-queue'
-// FAKE
-import { fakeWebsocket } from './fake-server'
+import { Queries } from './live-model/query-interfaces'
 
 export interface RootService {
   store: IRootStoreModel
-  liveData: LiveModelService
+  subscribe: (q: Queries) => () => void
 }
-
-// FAKE
-const WS_ENDPOINT = 'wss://snoapps.com/socket.io'
 
 export const makeRootService = (): RootService => {
   const serverStore = RootStoreModel.create()
   const store = RootStoreModel.create()
 
-  // FAKE
-  const websocket = fakeWebsocket()
-
   const queueResourceUpdates = makeUpdaterQueue<
     SnapshotOut<typeof ResourceModel>
   >({
     update: async (model) => {
-      // FAKE
-      websocket.update('Resource', model)
+      const serverEntity = serverStore.resources.get(model.id)
+      // await DataStore.save(
+      //   serverEntity
+      //     ? Resource.copyOf(getSnapshot(serverEntity), () => model)
+      //     : new Resource(model)
+      // )
     },
     onUpdateFailed(model) {
       const serverEntity = serverStore.resources.get(model.id)
       if (serverEntity) {
-        store.setResources([serverEntity], true)
+        store.setResources([serverEntity])
       }
     },
   })
 
   const queueEventUpdates = makeUpdaterQueue<SnapshotOut<typeof EventModel>>({
     update: async (model) => {
-      // FAKE
-      websocket.update('Event', model)
+      const serverEntity = serverStore.events.get(model.id)
+      // await DataStore.save(
+      //   serverEntity
+      //     ? Event.copyOf(getSnapshot(serverEntity), () => model)
+      //     : new Event({ ...model, resource: { id: model.resource } })
+      // )
     },
     onUpdateFailed(model) {
       const serverEntity = serverStore.events.get(model.id)
       if (serverEntity) {
-        store.setEvents([serverEntity], true)
+        store.setEvents([serverEntity])
       }
     },
   })
@@ -54,7 +54,8 @@ export const makeRootService = (): RootService => {
   autorun(() => {
     const resources = Object.values(getSnapshot(store.resources))
     const modifiedResources = resources.filter(
-      ({ serverUpdatedAt, updatedAt }) => updatedAt > serverUpdatedAt
+      ({ id, updatedAt }) =>
+        updatedAt > (serverStore.resources.get(id)?.updatedAt ?? 0)
     )
     queueResourceUpdates(modifiedResources)
   })
@@ -62,34 +63,38 @@ export const makeRootService = (): RootService => {
   autorun(() => {
     const events = Object.values(getSnapshot(store.events))
     const modifiedEvents = events.filter(
-      ({ serverUpdatedAt, updatedAt }) => updatedAt > serverUpdatedAt
+      ({ id, updatedAt }) =>
+        updatedAt > (serverStore.events.get(id)?.updatedAt ?? 0)
     )
     queueEventUpdates(modifiedEvents)
   })
 
-  const liveData = makeLiveModelService({
-    endpoint: WS_ENDPOINT,
-    onUpdate(channel, models) {
-      console.log('Live data update:', channel, models)
-      if (channel === 'Resource') {
-        const resources = models as SnapshotIn<typeof ResourceModel>[]
-        store.setResources(resources)
-        serverStore.setResources(resources)
-      }
-      if (channel === 'Event') {
-        const events = models as SnapshotIn<typeof EventModel>[]
-        store.setEvents(events)
-        serverStore.setEvents(events)
-      }
-    },
-    connect(url, params, cb) {
-      // FAKE
-      return websocket.connect(url, params, cb)
-    },
-  })
+  const subscribe = (query: Queries): (() => void) => {
+    if (query.type === 'QueryEventWindow') {
+      // const subscriptions = query.resourceIds.map((id) =>
+      //   DataStore.observeQuery(Event, (e) =>
+      //     e
+      //       .eventResourceId('eq', id)
+      //       .or((e) =>
+      //         e
+      //           .start('le', query.viewEnd.getTime())
+      //           .end('ge', query.viewStart.getTime())
+      //       )
+      //   ).subscribe((snapshot) => {
+      //     // @ts-expect-error EagerEvent from DataStore differs from EventModel MST model
+      //     store.setEvents(snapshot.items)
+      //     // @ts-expect-error EagerEvent from DataStore differs from EventModel MST model
+      //     serverStore.setEvents(snapshot.items)
+      //   })
+      // )
+      // return () =>
+      //   subscriptions.forEach((subscription) => subscription.unsubscribe())
+    }
+    return () => {}
+  }
 
   return {
     store,
-    liveData,
+    subscribe,
   }
 }

@@ -1,3 +1,4 @@
+import { values } from 'mobx'
 import { observer } from 'mobx-react-lite'
 import { getSnapshot } from 'mobx-state-tree'
 import moment from 'moment'
@@ -9,18 +10,50 @@ import { useWindowEvent } from '../hooks/useWindowEvent'
 import { IEventModel } from '../store/event'
 import { IResourceModel } from '../store/resource'
 
-const useLiveResources = (resourceIds: string[], start: Date, end: Date) => {
+interface QueryEventWindow {
+  type: 'QueryEventWindow'
+  resourceIds: string[]
+  viewStart: Date
+  viewEnd: Date
+}
+
+const makeQueryEventWindow = (
+  resourceIds: string[],
+  viewStart: Date,
+  viewEnd: Date
+): QueryEventWindow => {
+  return {
+    type: 'QueryEventWindow',
+    resourceIds,
+    viewStart,
+    viewEnd,
+  }
+}
+
+const useLiveResources = (resourceIds: string[]) => {}
+
+const useLiveEvents = (
+  resourceIds: string[],
+  start: Date,
+  end: Date
+): Record<string, IEventModel[] | undefined> => {
   const { store, liveData } = useRootStore()
 
   useEffect(() => {
-    return liveData.subscribe({
-      type: 'Resource',
-      ids: resourceIds,
-      start,
-      end,
-    })
+    const unsubscribe = liveData.subscribe(
+      makeQueryEventWindow(resourceIds, start, end)
+    )
+    return () => {
+      unsubscribe()
+    }
   }, [start, end, resourceIds.join()])
-  return store.getResources(resourceIds)
+
+  return Array.from(store.events.values()).reduce((result, event) => {
+    return {
+      ...result,
+      [event.resource.id]: [...(result[event.resource.id] ?? []), event],
+    }
+  }, {} as Record<string, IEventModel[] | undefined>)
 }
 
 export const ResourceCalendarView = observer(() => {
@@ -39,7 +72,7 @@ export const ResourceCalendarView = observer(() => {
     [cellWidth]
   )
 
-  const resources = useLiveResources(
+  const resources = useLiveEvents(
     resourceIds,
     startDate,
     moment(startDate).add(numOfDays, 'days').toDate()
