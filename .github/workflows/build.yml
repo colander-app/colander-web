@@ -1,0 +1,27 @@
+name: Build & Deploy
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-node@v3
+      with:
+        node_version: 16
+        cache: yarn
+    - uses: actions/setup-python@v4
+      with:
+        python_version: '3.9'
+    # setup aws
+    - run: pip install --quiet --no-cache-dir awscli==1.27.8
+    # build and deploy
+    - run: yarn --frozen-lockfile
+    - run: yarn build
+    - run: aws s3 sync ./build s3://${{ secrets.AWS_BUCKET }}/ --no-progress
+    - run: aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} --paths /\*
