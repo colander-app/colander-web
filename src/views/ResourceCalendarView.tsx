@@ -30,30 +30,27 @@ const makeQueryEventWindow = (
   }
 }
 
-const useLiveResources = (resourceIds: string[]) => {}
+type CalendarRow = { resource: IResourceModel; events: IEventModel[] }
 
-const useLiveEvents = (
+const useEventsAsCalendarRowData = (
   resourceIds: string[],
   start: Date,
   end: Date
-): Record<string, IEventModel[] | undefined> => {
-  const { store, liveData } = useRootStore()
+): CalendarRow[] => {
+  const { store, subscribe } = useRootStore()
 
   useEffect(() => {
-    const unsubscribe = liveData.subscribe(
-      makeQueryEventWindow(resourceIds, start, end)
-    )
+    const unsubscribe = subscribe(makeQueryEventWindow(resourceIds, start, end))
     return () => {
       unsubscribe()
     }
   }, [start, end, resourceIds.join()])
 
-  return Array.from(store.events.values()).reduce((result, event) => {
-    return {
-      ...result,
-      [event.resource.id]: [...(result[event.resource.id] ?? []), event],
-    }
-  }, {} as Record<string, IEventModel[] | undefined>)
+  const storeEvents = Array.from(store.events.values())
+  return resourceIds.map((id) => ({
+    resource: store.resources.get(id) as IResourceModel,
+    events: storeEvents.filter((event) => event.resource === id),
+  }))
 }
 
 export const ResourceCalendarView = observer(() => {
@@ -72,12 +69,12 @@ export const ResourceCalendarView = observer(() => {
     [cellWidth]
   )
 
-  const resources = useLiveEvents(
+  const calendarRows = useEventsAsCalendarRowData(
     resourceIds,
     startDate,
     moment(startDate).add(numOfDays, 'days').toDate()
   )
-  console.log('get resources', resourceIds, resources)
+  console.log('get resources', resourceIds, calendarRows)
 
   const onMoveEvent = (event: IEventModel, start: Date, end: Date) => {
     event.changeDates(start, end)
@@ -95,7 +92,7 @@ export const ResourceCalendarView = observer(() => {
   return (
     <div className="columns mt-0 mb-0">
       <ResourceCalendar
-        resources={resources}
+        data={calendarRows}
         onMoveEvent={onMoveEvent}
         onAddEvent={onAddEvent}
         onSelectEvent={onSelectEvent}

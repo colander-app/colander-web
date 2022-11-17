@@ -1,5 +1,4 @@
 import { Instance, types } from 'mobx-state-tree'
-import { ResourceModel } from './resource'
 
 export const EventModel = types
   .model({
@@ -10,7 +9,7 @@ export const EventModel = types
     label: types.string,
     color: types.string,
     tentative: types.boolean,
-    resource: types.reference(ResourceModel),
+    resource: types.string,
   })
   .actions((self) => ({
     changeDates(start: Date, end: Date) {

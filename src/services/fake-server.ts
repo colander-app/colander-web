@@ -11,30 +11,22 @@ const resources: SnapshotIn<typeof ResourceModel>[] = [
   {
     id: 'r1',
     name: 'Resource 1',
-    events: ['e1', 'e2', 'e3', 'e4'],
     updatedAt: new Date(1667309346394),
-    serverUpdatedAt: new Date(1667309346394),
   },
   {
     id: 'r2',
     name: 'Resource 2',
-    events: ['e1', 'e3', 'e4'],
     updatedAt: new Date(1667309350406),
-    serverUpdatedAt: new Date(1667309350406),
   },
   {
     id: 'r3',
     name: 'Resource 3',
-    events: ['e1', 'e3', 'e4'],
     updatedAt: new Date(1667309350406),
-    serverUpdatedAt: new Date(1667309350406),
   },
   {
     id: 'r4',
     name: 'Resource 4',
-    events: ['e1', 'e3', 'e4'],
     updatedAt: new Date(1667309350406),
-    serverUpdatedAt: new Date(1667309350406),
   },
 ]
 const events: SnapshotIn<typeof EventModel>[] = [
@@ -44,9 +36,9 @@ const events: SnapshotIn<typeof EventModel>[] = [
     start: moment().add(3, 'days').toDate(),
     end: moment().add(8, 'days').toDate(),
     updatedAt: new Date(1667309346394),
-    serverUpdatedAt: new Date(1667309346394),
     tentative: false,
     color: 'rgb(182, 182, 182)',
+    resource: 'r1',
   },
   {
     id: 'e2',
@@ -54,9 +46,9 @@ const events: SnapshotIn<typeof EventModel>[] = [
     start: moment().add(5, 'days').toDate(),
     end: moment().add(10, 'days').toDate(),
     updatedAt: new Date(1667309348524),
-    serverUpdatedAt: new Date(1667309348524),
     tentative: true,
     color: 'rgb(182, 182, 182)',
+    resource: 'r2',
   },
   {
     id: 'e3',
@@ -64,9 +56,9 @@ const events: SnapshotIn<typeof EventModel>[] = [
     start: moment().add(7, 'days').toDate(),
     end: moment().add(13, 'days').toDate(),
     updatedAt: new Date(1667309350406),
-    serverUpdatedAt: new Date(1667309350406),
     tentative: false,
     color: 'rgb(182, 182, 182)',
+    resource: 'r3',
   },
   {
     id: 'e4',
@@ -74,9 +66,9 @@ const events: SnapshotIn<typeof EventModel>[] = [
     start: moment().add(15, 'days').toDate(),
     end: moment().add(18, 'days').toDate(),
     updatedAt: new Date(1667309351458),
-    serverUpdatedAt: new Date(1667309351458),
     tentative: false,
     color: 'rgb(182, 182, 182)',
+    resource: 'r4',
   },
 ]
 

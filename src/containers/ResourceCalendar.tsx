@@ -20,7 +20,7 @@ import { IEventModel } from '../store/event'
 import { ResponsiveEventBubble } from './ResponsiveEventBubble'
 
 interface Props {
-  resources: IResourceModel[]
+  data: { resource: IResourceModel; events: IEventModel[] }[]
   onMoveEvent: (event: IEventModel, start: Date, end: Date) => void
   onAddEvent: (resource: IResourceModel, start: Date, end: Date) => void
   onSelectEvent: (id: string) => void
@@ -38,7 +38,7 @@ const weekdayLabels = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su']
 
 export const ResourceCalendar: React.FC<Props & PropsWithChildren> = observer(
   ({
-    resources,
+    data,
     onMoveEvent,
     onAddEvent,
     onSelectEvent,
@@ -68,8 +68,8 @@ export const ResourceCalendar: React.FC<Props & PropsWithChildren> = observer(
         <CalendarRow isHeader>
           <RowSeparator />
         </CalendarRow>
-        {resources.map((resource) => {
-          const buckets = getEventOffsetBuckets(resource.events)
+        {data.map(({ resource, events }) => {
+          const buckets = getEventOffsetBuckets(events)
           const eventOffsets = getEventOffsetsById(buckets)
           return (
             <Fragment key={resource.id}>
@@ -78,7 +78,7 @@ export const ResourceCalendar: React.FC<Props & PropsWithChildren> = observer(
                 <DateList startDate={startDate} count={numOfDays}>
                   {({ date, isWeekend }) => (
                     <DateBlock isWeekend={isWeekend}>
-                      {resource.events
+                      {events
                         .filter(filterEventsStartingOn(date))
                         .map((event) => (
                           <ResponsiveEventBubble
