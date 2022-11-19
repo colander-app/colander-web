@@ -32,21 +32,21 @@ export const RootStoreModel = types
           self.events.set(event.id, cast(event))
         })
       },
-      createEvent(resourceId: string, label: string, start: Date, end: Date) {
-        const resource = self.resources.get(resourceId)
+      createEvent(resource_id: string, label: string, start: Date, end: Date) {
+        const resource = self.resources.get(resource_id)
         if (!resource) {
-          console.error('Resource not found with id', resourceId)
+          console.error('Resource not found with id', resource_id)
           return
         }
         const event = EventModel.create({
           id: uuidv4(),
-          updatedAt: new Date(),
+          updatedAt: new Date().toISOString(),
+          start_date: start.toISOString(),
+          end_date: end.toISOString(),
           tentative: false,
           color: 'grey',
           label,
-          start,
-          end,
-          resource: resourceId,
+          resource_id,
         })
         self.events.put(event)
       },

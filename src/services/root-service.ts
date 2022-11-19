@@ -15,22 +15,22 @@ const seedResources: SnapshotIn<typeof ResourceModel>[] = [
   {
     id: 'r1',
     name: 'Resource 1',
-    updatedAt: new Date(1667309346394),
+    updatedAt: new Date(1667309346394).toISOString(),
   },
   {
     id: 'r2',
     name: 'Resource 2',
-    updatedAt: new Date(1667309350406),
+    updatedAt: new Date(1667309350406).toISOString(),
   },
   {
     id: 'r3',
     name: 'Resource 3',
-    updatedAt: new Date(1667309350406),
+    updatedAt: new Date(1667309350406).toISOString(),
   },
   {
     id: 'r4',
     name: 'Resource 4',
-    updatedAt: new Date(1667309350406),
+    updatedAt: new Date(1667309350406).toISOString(),
   },
 ]
 
@@ -45,13 +45,15 @@ export const makeRootService = (): RootService => {
   // WEBSOCKET INITIAL SPAGHETTI
   let isOpened = false
   const ws = new WebSocket(
-    'wss://2zsji57qoj.execute-api.us-east-1.amazonaws.com/dev'
+    'wss://2xnh1tab4e.execute-api.us-east-1.amazonaws.com/dev'
   )
   let messageQueue: string[] = []
   const sendMessage = (data: string) => {
     if (isOpened) {
+      console.log('sending message', data)
       ws.send(data)
     } else {
+      console.log('queueing message', data)
       messageQueue.push(data)
     }
   }
@@ -68,7 +70,10 @@ export const makeRootService = (): RootService => {
   ws.addEventListener('open', () => {
     isOpened = true
     console.log('Socket open!')
-    messageQueue.forEach((msg) => ws.send(msg))
+    messageQueue.forEach((msg) => {
+      console.log('dequeueing message', msg)
+      ws.send(msg)
+    })
     messageQueue = []
   })
   ws.addEventListener('close', () => {
@@ -97,7 +102,7 @@ export const makeRootService = (): RootService => {
 
   const queueEventUpdates = makeUpdaterQueue<SnapshotOut<typeof EventModel>>({
     update: async (model) => {
-      sendMessage(JSON.stringify({ action: 'onCreate', data: model }))
+      sendMessage(JSON.stringify({ action: 'putEvent', data: model }))
     },
     onUpdateFailed(model) {
       const serverEntity = serverStore.events.get(model.id)
@@ -111,7 +116,8 @@ export const makeRootService = (): RootService => {
     const resources = Object.values(getSnapshot(store.resources))
     const modifiedResources = resources.filter(
       ({ id, updatedAt }) =>
-        updatedAt > (serverStore.resources.get(id)?.updatedAt ?? 0)
+        new Date(updatedAt) >
+        new Date(serverStore.resources.get(id)?.updatedAt ?? 0)
     )
     queueResourceUpdates(modifiedResources)
   })
@@ -120,14 +126,29 @@ export const makeRootService = (): RootService => {
     const events = Object.values(getSnapshot(store.events))
     const modifiedEvents = events.filter(
       ({ id, updatedAt }) =>
-        updatedAt > (serverStore.events.get(id)?.updatedAt ?? 0)
+        new Date(updatedAt) >
+        new Date(serverStore.events.get(id)?.updatedAt ?? 0)
     )
     queueEventUpdates(modifiedEvents)
   })
 
   const subscribe = (query: Queries): (() => void) => {
     if (query.type === 'QueryEventWindow') {
-      sendMessage(JSON.stringify({ action: 'onSubscribe' }))
+      query.resourceIds.map((resource_id) => {
+        sendMessage(
+          JSON.stringify({
+            action: 'subscribeToEventRange',
+            query: {
+              resource_id,
+              start_date: query.viewStart.toISOString(),
+              end_date: query.viewEnd.toISOString(),
+            },
+          })
+        )
+        return () => {
+          // unsubscribe from event range here.
+        }
+      })
       // const subscriptions = query.resourceIds.map((id) =>
       //   DataStore.observeQuery(Event, (e) =>
       //     e

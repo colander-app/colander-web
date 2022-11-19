@@ -1,6 +1,4 @@
-import { values } from 'mobx'
 import { observer } from 'mobx-react-lite'
-import { getSnapshot } from 'mobx-state-tree'
 import moment from 'moment'
 import { useEffect } from 'react'
 import { Outlet, useNavigate } from 'react-router-dom'
@@ -49,7 +47,7 @@ const useEventsAsCalendarRowData = (
   const storeEvents = Array.from(store.events.values())
   return resourceIds.map((id) => ({
     resource: store.resources.get(id) as IResourceModel,
-    events: storeEvents.filter((event) => event.resource === id),
+    events: storeEvents.filter((event) => event.resource_id === id),
   }))
 }
 
@@ -77,7 +75,7 @@ export const ResourceCalendarView = observer(() => {
   console.log('get resources', resourceIds, calendarRows)
 
   const onMoveEvent = (event: IEventModel, start: Date, end: Date) => {
-    event.changeDates(start, end)
+    event.changeDates(start.toISOString(), end.toISOString())
   }
 
   const onAddEvent = (resource: IResourceModel, start: Date, end: Date) => {

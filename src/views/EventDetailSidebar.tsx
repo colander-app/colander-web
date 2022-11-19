@@ -52,11 +52,11 @@ export const EventDetailSidebar = observer(() => {
   }
 
   const changeStart = (newStart: Date) => {
-    event.changeDates(newStart, event.end)
+    event.changeDates(newStart.toISOString(), event.end_date)
   }
 
   const changeEnd = (newEnd: Date) => {
-    event.changeDates(event.start, newEnd)
+    event.changeDates(event.start_date, newEnd.toISOString())
   }
 
   const changeLabel = (text: string) => {
@@ -94,10 +94,10 @@ export const EventDetailSidebar = observer(() => {
         <div className="label">Start Date</div>
         <DatePicker
           selectsStart
-          selected={event.start}
           onChange={changeStart}
-          startDate={event.start}
-          endDate={event.end}
+          selected={new Date(event.start_date)}
+          startDate={new Date(event.start_date)}
+          endDate={new Date(event.end_date)}
           customInput={<DateInput />}
         />
       </div>
@@ -105,11 +105,11 @@ export const EventDetailSidebar = observer(() => {
         <div className="label">End Date</div>
         <DatePicker
           selectsEnd
-          selected={event.end}
           onChange={changeEnd}
-          startDate={event.start}
-          endDate={event.end}
-          minDate={event.start}
+          selected={new Date(event.end_date)}
+          startDate={new Date(event.start_date)}
+          endDate={new Date(event.end_date)}
+          minDate={new Date(event.start_date)}
           customInput={<DateInput />}
         />
       </div>

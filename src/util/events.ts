@@ -2,9 +2,9 @@ import moment from 'moment'
 import { IEventModel } from '../store/event'
 
 export const doEventsOverlap = (e1: IEventModel, e2: IEventModel): boolean =>
-  moment(e1.start).isBetween(e2.start, e2.end, 'day', '[]') ||
-  moment(e1.end).isBetween(e2.start, e2.end, 'day', '[]') ||
-  moment(e2.start).isBetween(e1.start, e1.end, 'day', '[]')
+  moment(e1.start_date).isBetween(e2.start_date, e2.end_date, 'day', '[]') ||
+  moment(e1.end_date).isBetween(e2.start_date, e2.end_date, 'day', '[]') ||
+  moment(e2.start_date).isBetween(e1.start_date, e1.end_date, 'day', '[]')
 
 /**
  * Find out how many events will be pushing the current event down on a given date block
@@ -46,4 +46,4 @@ export const getEventOffsetsById = (
 
 export const filterEventsStartingOn =
   (date: moment.Moment) => (event: IEventModel) =>
-    date.isSame(event.start, 'day')
+    date.isSame(event.start_date, 'day')

@@ -15,8 +15,8 @@ export const ResponsiveEventBubble = observer(
     return (
       <EventBubble
         key={event.id}
-        start={event.start}
-        end={event.end}
+        start={new Date(event.start_date)}
+        end={new Date(event.end_date)}
         offset={offset}
         width={width}
         striped={event.tentative}

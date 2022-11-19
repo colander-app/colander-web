@@ -5,7 +5,7 @@ interface Dependencies<M> {
 
 interface BaseEntity {
   id: string
-  updatedAt: number
+  updatedAt: string
   [key: string]: any
 }
 
