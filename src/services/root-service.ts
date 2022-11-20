@@ -1,7 +1,7 @@
 import { autorun } from 'mobx'
 import { SnapshotOut, getSnapshot, SnapshotIn } from 'mobx-state-tree'
 import { EventModel } from '../store/event'
-import { IResourceModel, ResourceModel } from '../store/resource'
+import { ResourceModel } from '../store/resource'
 import { RootStoreModel, IRootStoreModel } from '../store/root'
 import { makeUpdaterQueue } from './updater-queue'
 import { Queries } from './live-model/query-interfaces'
