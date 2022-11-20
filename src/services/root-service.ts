@@ -45,7 +45,7 @@ export const makeRootService = (): RootService => {
   // WEBSOCKET INITIAL SPAGHETTI
   let isOpened = false
   const ws = new WebSocket(
-    'wss://2xnh1tab4e.execute-api.us-east-1.amazonaws.com/dev'
+    'wss://37lcz5pey2.execute-api.us-east-1.amazonaws.com/dev'
   )
   let messageQueue: string[] = []
   const sendMessage = (data: string) => {
