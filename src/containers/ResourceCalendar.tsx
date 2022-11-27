@@ -18,6 +18,7 @@ import {
 import { IResourceModel } from '../store/resource'
 import { IEventModel } from '../store/event'
 import { ResponsiveEventBubble } from './ResponsiveEventBubble'
+import moment from 'moment'
 
 interface Props {
   data: { resource: IResourceModel; events: IEventModel[] }[]
@@ -50,6 +51,7 @@ export const ResourceCalendar: React.FC<Props & PropsWithChildren> = observer(
     children,
   }) => {
     const getHeight = makeGetHeight(bubbleHeight, bubbleMargin)
+    const endDate = moment(startDate).add(numOfDays, 'days').toDate()
     return (
       <ResourceCalendarBlock className="column pr-0 pt-0">
         <CalendarRow isHeader>
@@ -83,6 +85,8 @@ export const ResourceCalendar: React.FC<Props & PropsWithChildren> = observer(
                         .map((event) => (
                           <ResponsiveEventBubble
                             key={event.id}
+                            viewStart={startDate}
+                            viewEnd={endDate}
                             event={event}
                             width={cellWidth}
                             offset={getHeight(eventOffsets[event.id])}

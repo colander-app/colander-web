@@ -5,7 +5,7 @@ interface Dependencies<M> {
 
 interface BaseEntity {
   id: string
-  updatedAt: string
+  updated_at: string
   [key: string]: any
 }
 
@@ -42,9 +42,9 @@ export const makeUpdaterQueue = <M extends BaseEntity>({
 
   const enqueue = (items: M[]) => {
     const dedeupedItems = items.filter(
-      ({ id, updatedAt }) =>
+      ({ id, updated_at }) =>
         queue.find(
-          (qItem) => qItem.id === id && qItem.updatedAt === updatedAt
+          (qItem) => qItem.id === id && qItem.updated_at === updated_at
         ) === undefined
     )
     queue.push(...dedeupedItems)

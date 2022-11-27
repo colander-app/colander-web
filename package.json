@@ -1,7 +1,12 @@
 {
-  "name": "scheduleui",
+  "name": "colander-web",
+  "description": "Web App for colanderapp.io",
   "version": "0.1.0",
   "private": true,
+  "author": {
+    "name": "Micaiah Wallace",
+    "email": "mwallace@colanderapp.io"
+  },
   "dependencies": {
     "@testing-library/jest-dom": "^5.14.1",
     "@testing-library/react": "^13.0.0",
@@ -10,7 +15,6 @@
     "@types/node": "^16.7.13",
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",
-    "bulma": "^0.9.4",
     "color": "^4.2.3",
     "mobx": "^6.6.2",
     "mobx-react-lite": "^3.4.0",

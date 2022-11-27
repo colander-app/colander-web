@@ -15,22 +15,26 @@ const seedResources: SnapshotIn<typeof ResourceModel>[] = [
   {
     id: 'r1',
     name: 'Resource 1',
-    updatedAt: new Date(1667309346394).toISOString(),
+    organization_id: 'org1',
+    updated_at: new Date(1667309346394).toISOString(),
   },
   {
     id: 'r2',
     name: 'Resource 2',
-    updatedAt: new Date(1667309350406).toISOString(),
+    organization_id: 'org1',
+    updated_at: new Date(1667309350406).toISOString(),
   },
   {
     id: 'r3',
     name: 'Resource 3',
-    updatedAt: new Date(1667309350406).toISOString(),
+    organization_id: 'org1',
+    updated_at: new Date(1667309350406).toISOString(),
   },
   {
     id: 'r4',
     name: 'Resource 4',
-    updatedAt: new Date(1667309350406).toISOString(),
+    organization_id: 'org1',
+    updated_at: new Date(1667309350406).toISOString(),
   },
 ]
 
@@ -42,44 +46,50 @@ export const makeRootService = (): RootService => {
   serverStore.setResources(seedResources)
   store.setResources(seedResources)
 
-  // WEBSOCKET INITIAL SPAGHETTI
-  let isOpened = false
-  const ws = new WebSocket(
-    'wss://37lcz5pey2.execute-api.us-east-1.amazonaws.com/dev'
-  )
+  let ws: WebSocket | undefined
   let messageQueue: string[] = []
+  let isOpened = false
   const sendMessage = (data: string) => {
     if (isOpened) {
       console.log('sending message', data)
-      ws.send(data)
+      ws?.send(data)
     } else {
       console.log('queueing message', data)
       messageQueue.push(data)
     }
   }
-  ws.addEventListener('message', (event) => {
-    try {
-      const events = JSON.parse(event.data)
-      serverStore.setEvents(events)
-      store.setEvents(events)
-      console.log('inbound events', events)
-    } catch (err) {
-      console.log('err', event.data)
-    }
-  })
-  ws.addEventListener('open', () => {
-    isOpened = true
-    console.log('Socket open!')
-    messageQueue.forEach((msg) => {
-      console.log('dequeueing message', msg)
-      ws.send(msg)
+  const startWebsocket = () => {
+    ws = new WebSocket(
+      'wss://0h136ha5qk.execute-api.us-east-1.amazonaws.com/dev'
+    )
+    ws.addEventListener('message', (event) => {
+      try {
+        const events = JSON.parse(event.data)
+        console.log('inbound events', events)
+        serverStore.setEvents(events)
+        store.setEvents(events)
+        console.log('event store updated')
+      } catch (err) {
+        console.log('err', event.data)
+      }
     })
-    messageQueue = []
-  })
-  ws.addEventListener('close', () => {
-    isOpened = false
-    console.log('Socket close :(')
-  })
+    ws.addEventListener('open', () => {
+      isOpened = true
+      console.log('Socket open!')
+      messageQueue.forEach((msg) => {
+        console.log('dequeueing message', msg)
+        ws?.send(msg)
+      })
+      messageQueue = []
+    })
+    ws.addEventListener('close', () => {
+      isOpened = false
+      ws = undefined
+      console.log('Socket close :(')
+      setTimeout(startWebsocket, 2000)
+    })
+  }
+  startWebsocket()
 
   const queueResourceUpdates = makeUpdaterQueue<
     SnapshotOut<typeof ResourceModel>
@@ -115,9 +125,9 @@ export const makeRootService = (): RootService => {
   autorun(() => {
     const resources = Object.values(getSnapshot(store.resources))
     const modifiedResources = resources.filter(
-      ({ id, updatedAt }) =>
-        new Date(updatedAt) >
-        new Date(serverStore.resources.get(id)?.updatedAt ?? 0)
+      ({ id, updated_at }) =>
+        new Date(updated_at) >
+        new Date(serverStore.resources.get(id)?.updated_at ?? 0)
     )
     queueResourceUpdates(modifiedResources)
   })
@@ -125,16 +135,17 @@ export const makeRootService = (): RootService => {
   autorun(() => {
     const events = Object.values(getSnapshot(store.events))
     const modifiedEvents = events.filter(
-      ({ id, updatedAt }) =>
-        new Date(updatedAt) >
-        new Date(serverStore.events.get(id)?.updatedAt ?? 0)
+      ({ id, updated_at }) =>
+        new Date(updated_at) >
+        new Date(serverStore.events.get(id)?.updated_at ?? 0)
     )
     queueEventUpdates(modifiedEvents)
   })
 
   const subscribe = (query: Queries): (() => void) => {
     if (query.type === 'QueryEventWindow') {
-      query.resourceIds.map((resource_id) => {
+      const unsubscribers = query.resourceIds.map((resource_id) => {
+        // subscribe to event range here.
         sendMessage(
           JSON.stringify({
             action: 'subscribeToEventRange',
@@ -147,26 +158,19 @@ export const makeRootService = (): RootService => {
         )
         return () => {
           // unsubscribe from event range here.
+          sendMessage(
+            JSON.stringify({
+              action: 'unsubscribeFromEventRange',
+              data: {
+                resource_id,
+              },
+            })
+          )
         }
       })
-      // const subscriptions = query.resourceIds.map((id) =>
-      //   DataStore.observeQuery(Event, (e) =>
-      //     e
-      //       .eventResourceId('eq', id)
-      //       .or((e) =>
-      //         e
-      //           .start('le', query.viewEnd.getTime())
-      //           .end('ge', query.viewStart.getTime())
-      //       )
-      //   ).subscribe((snapshot) => {
-      //     // @ts-expect-error EagerEvent from DataStore differs from EventModel MST model
-      //     store.setEvents(snapshot.items)
-      //     // @ts-expect-error EagerEvent from DataStore differs from EventModel MST model
-      //     serverStore.setEvents(snapshot.items)
-      //   })
-      // )
-      // return () =>
-      //   subscriptions.forEach((subscription) => subscription.unsubscribe())
+      return () => {
+        unsubscribers.forEach((unsubscribe) => unsubscribe())
+      }
     }
     return () => {}
   }

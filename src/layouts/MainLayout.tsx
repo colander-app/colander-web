@@ -7,18 +7,14 @@ const primaryTheme = {
   headerTextColor: 'rgb(120, 120, 120)',
   rowBorder: `solid 1px ${borderColor}`,
   weekendColor: 'rgb(246, 251, 251)',
-
-  greenEventColor: 'rgba(54, 206, 106, 0.85)',
 }
 
-const App = () => {
+export const MainLayout = () => {
   return (
     <ThemeProvider theme={primaryTheme}>
       <nav className="navbar" role="navigation" aria-label="main navigation">
         <div className="navbar-brand">
-          <span className="navbar-item has-text-weight-bold">
-            Surveillance One, Inc
-          </span>
+          <span className="navbar-item has-text-weight-bold">Company Name</span>
           <a
             role="button"
             className="navbar-burger"
@@ -30,7 +26,7 @@ const App = () => {
             <span aria-hidden="true"></span>
           </a>
         </div>
-        <div className="navbar-menu is-active">
+        <div className="navbar-menu">
           <div className="navbar-start">
             <Link to="/calendar" className="navbar-item">
               Calendar
@@ -63,5 +59,3 @@ const App = () => {
     </ThemeProvider>
   )
 }
-
-export default App

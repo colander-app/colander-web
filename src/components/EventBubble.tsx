@@ -54,6 +54,8 @@ export const EventBlock = styled.div<EventBlockProps>`
 `
 
 interface EventBubbleProps {
+  viewStart: Date
+  viewEnd: Date
   start: Date
   end: Date
   offset: number
@@ -66,6 +68,8 @@ interface EventBubbleProps {
 export const EventBubble: React.FC<
   React.PropsWithChildren & EventBubbleProps
 > = ({
+  viewStart,
+  viewEnd,
   start,
   end,
   offset,

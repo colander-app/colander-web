@@ -3,6 +3,8 @@ import { EventBubble } from '../components/EventBubble'
 import { IEventModel } from '../store/event'
 
 interface Props {
+  viewStart: Date
+  viewEnd: Date
   event: IEventModel
   offset: number
   width: number
@@ -11,10 +13,12 @@ interface Props {
 }
 
 export const ResponsiveEventBubble = observer(
-  ({ event, offset, width, onClick, onMove }: Props) => {
+  ({ event, offset, width, onClick, onMove, viewStart, viewEnd }: Props) => {
     return (
       <EventBubble
         key={event.id}
+        viewStart={viewStart}
+        viewEnd={viewEnd}
         start={new Date(event.start_date)}
         end={new Date(event.end_date)}
         offset={offset}

@@ -40,7 +40,7 @@ export const RootStoreModel = types
         }
         const event = EventModel.create({
           id: uuidv4(),
-          updatedAt: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
           start_date: start.toISOString(),
           end_date: end.toISOString(),
           tentative: false,

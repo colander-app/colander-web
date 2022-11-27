@@ -1,23 +1,27 @@
 import ReactDOM from 'react-dom/client'
 import './index.css'
-import App from './App'
+import { MainLayout } from './layouts/MainLayout'
 import reportWebVitals from './reportWebVitals'
-import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom'
 import { ResourceCalendarView } from './views/ResourceCalendarView'
 import { RootStoreProvider } from './context/RootStoreContext'
-import { EventDetailSidebar } from './views/EventDetailSidebar'
+import { EventDetailsView } from './views/EventDetailsView'
 
 import 'react-datepicker/dist/react-datepicker.css'
+import '@patternfly/patternfly/patternfly.css'
 
 const router = createBrowserRouter([
   {
-    path: '/',
-    element: <App />,
+    element: <MainLayout />,
     children: [
       {
         path: 'calendar',
         element: <ResourceCalendarView />,
-        children: [{ path: 'event/:id', element: <EventDetailSidebar /> }],
+        children: [{ path: 'event/:id', element: <EventDetailsView /> }],
+      },
+      {
+        index: true,
+        element: <Navigate to="/calendar" replace />,
       },
     ],
   },

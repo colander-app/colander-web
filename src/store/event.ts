@@ -2,27 +2,28 @@ import { Instance, types } from 'mobx-state-tree'
 
 export const EventModel = types
   .model({
+    __type: types.optional(types.literal('event'), 'event'),
     id: types.identifier,
-    updatedAt: types.string,
+    resource_id: types.string,
     start_date: types.string,
     end_date: types.string,
     label: types.string,
     color: types.string,
     tentative: types.boolean,
-    resource_id: types.string,
+    updated_at: types.string,
   })
   .actions((self) => ({
     changeDates(start: string, end: string) {
-      self.updatedAt = new Date().toISOString()
+      self.updated_at = new Date().toISOString()
       self.start_date = start
       self.end_date = end
     },
     updateLabel(str: string) {
-      self.updatedAt = new Date().toISOString()
+      self.updated_at = new Date().toISOString()
       self.label = str
     },
     setTentative(tentative: boolean) {
-      self.updatedAt = new Date().toISOString()
+      self.updated_at = new Date().toISOString()
       self.tentative = tentative
     },
   }))
