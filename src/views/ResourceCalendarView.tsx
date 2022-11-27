@@ -1,8 +1,3 @@
-import {
-  Drawer,
-  DrawerContent,
-  DrawerContentBody,
-} from '@patternfly/react-core'
 import { observer } from 'mobx-react-lite'
 import moment from 'moment'
 import { useEffect } from 'react'
@@ -96,24 +91,21 @@ export const ResourceCalendarView = observer(() => {
   }
 
   return (
-    <Drawer isExpanded={isExpanded} position="right">
-      <DrawerContent panelContent={<Outlet />}>
-        <DrawerContentBody>
-          <div className="columns mt-0 mb-0">
-            <ResourceCalendar
-              data={calendarRows}
-              onMoveEvent={onMoveEvent}
-              onAddEvent={onAddEvent}
-              onSelectEvent={onSelectEvent}
-              startDate={startDate}
-              numOfDays={numOfDays}
-              cellWidth={cellWidth}
-              bubbleHeight={bubbleHeight}
-              bubbleMargin={bubbleMargin}
-            />
-          </div>
-        </DrawerContentBody>
-      </DrawerContent>
-    </Drawer>
+    <div>
+      <div className="columns mt-0 mb-0">
+        <ResourceCalendar
+          data={calendarRows}
+          onMoveEvent={onMoveEvent}
+          onAddEvent={onAddEvent}
+          onSelectEvent={onSelectEvent}
+          startDate={startDate}
+          numOfDays={numOfDays}
+          cellWidth={cellWidth}
+          bubbleHeight={bubbleHeight}
+          bubbleMargin={bubbleMargin}
+        />
+      </div>
+      <Outlet />
+    </div>
   )
 })
