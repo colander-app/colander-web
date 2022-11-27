@@ -3,6 +3,7 @@ import { observer } from 'mobx-react-lite'
 import { useRootStore } from '../context/RootStoreContext'
 import { DateInput } from '../components/DateInput'
 import { useNavigate, useNavigation, useParams } from 'react-router-dom'
+import { Drawer } from '../containers/Drawer'
 
 export const EventDetailsView = observer(() => {
   const { store } = useRootStore()
@@ -40,8 +41,7 @@ export const EventDetailsView = observer(() => {
   }
 
   return (
-    <div>
-      <h3 className="pf-c-title pf-m-2xl">Event Details</h3>
+    <Drawer title="Event Details" onClose={onClickClose}>
       <div className="field">
         <label className="checkbox">
           <input
@@ -89,6 +89,6 @@ export const EventDetailsView = observer(() => {
           customInput={<DateInput />}
         />
       </div>
-    </div>
+    </Drawer>
   )
 })

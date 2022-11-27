@@ -2,9 +2,11 @@ import ReactDOM from 'react-dom/client'
 import './index.css'
 import { MainLayout } from './layouts/MainLayout'
 import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom'
-import { ResourceCalendarView } from './views/ResourceCalendarView'
+import { ResourceCalendarView } from './views/ResourceCalendar'
 import { RootStoreProvider } from './context/RootStoreContext'
 import { EventDetailsView } from './views/EventDetailsView'
+import { ResourcesView } from './views/resources'
+import { ProjectsView } from './views/projects'
 
 import 'react-datepicker/dist/react-datepicker.css'
 
@@ -16,6 +18,14 @@ const router = createBrowserRouter([
         path: 'calendar',
         element: <ResourceCalendarView />,
         children: [{ path: 'event/:id', element: <EventDetailsView /> }],
+      },
+      {
+        path: 'resources',
+        element: <ResourcesView />,
+      },
+      {
+        path: 'projects',
+        element: <ProjectsView />,
       },
       {
         index: true,

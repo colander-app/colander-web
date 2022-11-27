@@ -2,6 +2,7 @@ import { observer } from 'mobx-react-lite'
 import moment from 'moment'
 import { useEffect } from 'react'
 import { Outlet, useNavigate, useParams } from 'react-router-dom'
+import { Drawer } from '../containers/Drawer'
 import { ResourceCalendar } from '../containers/ResourceCalendar'
 import { useRootStore } from '../context/RootStoreContext'
 import { useWindowEvent } from '../hooks/useWindowEvent'
@@ -91,20 +92,18 @@ export const ResourceCalendarView = observer(() => {
   }
 
   return (
-    <div>
-      <div className="columns mt-0 mb-0">
-        <ResourceCalendar
-          data={calendarRows}
-          onMoveEvent={onMoveEvent}
-          onAddEvent={onAddEvent}
-          onSelectEvent={onSelectEvent}
-          startDate={startDate}
-          numOfDays={numOfDays}
-          cellWidth={cellWidth}
-          bubbleHeight={bubbleHeight}
-          bubbleMargin={bubbleMargin}
-        />
-      </div>
+    <div className="mx-0 py-6">
+      <ResourceCalendar
+        data={calendarRows}
+        onMoveEvent={onMoveEvent}
+        onAddEvent={onAddEvent}
+        onSelectEvent={onSelectEvent}
+        startDate={startDate}
+        numOfDays={numOfDays}
+        cellWidth={cellWidth}
+        bubbleHeight={bubbleHeight}
+        bubbleMargin={bubbleMargin}
+      />
       <Outlet />
     </div>
   )
