@@ -1,6 +1,6 @@
 import { useState, Fragment, PropsWithChildren } from 'react'
 import { Dialog, Transition } from '@headlessui/react'
-import { XMarkIcon } from '@heroicons/react/24/outline'
+import XMarkIcon from '@heroicons/react/24/outline/XMarkIcon'
 
 interface Props {
   title?: string
