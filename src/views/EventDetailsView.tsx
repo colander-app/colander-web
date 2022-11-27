@@ -37,7 +37,7 @@ export const EventDetailsView = observer(() => {
   }
 
   const onClickClose = () => {
-    navigate('/', { replace: true })
+    navigate('/')
   }
 
   return (

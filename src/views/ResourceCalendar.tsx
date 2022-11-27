@@ -88,7 +88,7 @@ export const ResourceCalendarView = observer(() => {
   }
 
   const onSelectEvent = (id: string) => {
-    navigate(`event/${id}`, { replace: true })
+    navigate(`event/${id}`)
   }
 
   return (
