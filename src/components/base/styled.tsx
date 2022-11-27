@@ -18,7 +18,6 @@ export const HeaderLabelBlock = styled.div<DateBlockProps>`
   text-align: center;
   border-right: ${(props) => props.theme.rowBorder};
   color: ${(props) => props.theme.headerTextColor};
-  font-weight: bolder;
   font-size: 12px;
   padding-top: 5px;
   ${({ isWeekend, theme }) =>

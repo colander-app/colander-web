@@ -28,7 +28,7 @@ export const ResponsiveEventBubble = observer(
         onClick={onClick}
         onMove={onMove}
       >
-        <span style={{ fontSize: 12, fontWeight: 'bold' }}>{event.label}</span>
+        <span className="text-xs">{event.label}</span>
       </EventBubble>
     )
   }

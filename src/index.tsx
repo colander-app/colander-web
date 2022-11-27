@@ -5,8 +5,8 @@ import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom'
 import { ResourceCalendarView } from './views/ResourceCalendar'
 import { RootStoreProvider } from './context/RootStoreContext'
 import { EventDetailsView } from './views/EventDetailsView'
-import { ResourcesView } from './views/resources'
-import { ProjectsView } from './views/projects'
+import { ResourcesView } from './views/Resources'
+import { ProjectsView } from './views/Projects'
 
 import 'react-datepicker/dist/react-datepicker.css'
 

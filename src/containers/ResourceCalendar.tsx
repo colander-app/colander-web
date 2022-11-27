@@ -53,16 +53,14 @@ export const ResourceCalendar: React.FC<Props & PropsWithChildren> = observer(
     const getHeight = makeGetHeight(bubbleHeight, bubbleMargin)
     const endDate = moment(startDate).add(numOfDays, 'days').toDate()
     return (
-      <ResourceCalendarBlock className="column pr-0 pt-0">
+      <ResourceCalendarBlock>
         <CalendarRow isHeader>
           <ResourceLabelBlock />
           <DateList startDate={startDate} count={numOfDays}>
             {({ date, isWeekend }) => (
               <HeaderLabelBlock isWeekend={isWeekend}>
-                <span className="is-block">
-                  {weekdayLabels[date.weekday()]}
-                </span>
-                <span className="is-block">{date.date()}</span>
+                <span className="block">{weekdayLabels[date.weekday()]}</span>
+                <span className="block">{date.date()}</span>
               </HeaderLabelBlock>
             )}
           </DateList>
