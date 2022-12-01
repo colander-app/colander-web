@@ -10,7 +10,7 @@ interface DateListProps {
 export const DateList = ({ startDate, count, children }: DateListProps) => (
   <>
     {[...new Array(count)].map((_, i) => {
-      const date = moment(startDate).add(i, 'days')
+      const date = moment(startDate).utc().add(i, 'days')
       const key = date.toISOString()
       const isWeekend = date.isoWeekday() > 5
       return <Fragment key={key}>{children({ date, isWeekend })}</Fragment>

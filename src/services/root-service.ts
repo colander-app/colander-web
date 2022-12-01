@@ -5,6 +5,8 @@ import { ResourceModel } from '../store/resource'
 import { RootStoreModel, IRootStoreModel } from '../store/root'
 import { makeUpdaterQueue } from './updater-queue'
 import { Queries } from './live-model/query-interfaces'
+import config from '../config.json'
+import { makeWebsocketService } from './websocket'
 
 export interface RootService {
   store: IRootStoreModel
@@ -46,50 +48,15 @@ export const makeRootService = (): RootService => {
   serverStore.setResources(seedResources)
   store.setResources(seedResources)
 
-  let ws: WebSocket | undefined
-  let messageQueue: string[] = []
-  let isOpened = false
-  const sendMessage = (data: string) => {
-    if (isOpened) {
-      console.log('sending message', data)
-      ws?.send(data)
-    } else {
-      console.log('queueing message', data)
-      messageQueue.push(data)
-    }
-  }
-  const startWebsocket = () => {
-    ws = new WebSocket(
-      'wss://0h136ha5qk.execute-api.us-east-1.amazonaws.com/dev'
-    )
-    ws.addEventListener('message', (event) => {
-      try {
-        const events = JSON.parse(event.data)
-        console.log('inbound events', events)
-        serverStore.setEvents(events)
-        store.setEvents(events)
-        console.log('event store updated')
-      } catch (err) {
-        console.log('err', event.data)
-      }
-    })
-    ws.addEventListener('open', () => {
-      isOpened = true
-      console.log('Socket open!')
-      messageQueue.forEach((msg) => {
-        console.log('dequeueing message', msg)
-        ws?.send(msg)
-      })
-      messageQueue = []
-    })
-    ws.addEventListener('close', () => {
-      isOpened = false
-      ws = undefined
-      console.log('Socket close :(')
-      setTimeout(startWebsocket, 2000)
-    })
-  }
-  startWebsocket()
+  const { sendMessage } = makeWebsocketService({
+    endpoint: config.wsEndpoint,
+    onMessage(events) {
+      console.log('inbound events', events)
+      serverStore.setEvents(events)
+      store.setEvents(events)
+      console.log('event store updated')
+    },
+  })
 
   const queueResourceUpdates = makeUpdaterQueue<
     SnapshotOut<typeof ResourceModel>

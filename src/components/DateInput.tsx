@@ -1,4 +1,5 @@
 import { forwardRef } from 'react'
+import { TextInput } from './TextInput'
 
 interface InputProps {
   value?: string
@@ -10,8 +11,7 @@ export const DateInput = forwardRef<HTMLInputElement, InputProps>(
   ({ value, onClick, onChange }, ref) => {
     return (
       <div className="control">
-        <input
-          className="input"
+        <TextInput
           placeholder="Start"
           ref={ref}
           onClick={onClick}

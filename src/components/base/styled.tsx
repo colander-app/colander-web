@@ -1,11 +1,12 @@
 import styled from 'styled-components'
 
 interface DateBlockProps {
+  width: number
   isWeekend?: boolean
 }
 export const DateBlock = styled.div<DateBlockProps>`
   position: relative;
-  min-width: 40px;
+  min-width: ${(p) => p.width}px;
   min-height: 50px;
   border-right: ${(props) => props.theme.rowBorder};
   text-align: center;
@@ -13,7 +14,7 @@ export const DateBlock = styled.div<DateBlockProps>`
     isWeekend ? `background-color: ${theme.weekendColor};` : null}
 `
 export const HeaderLabelBlock = styled.div<DateBlockProps>`
-  min-width: 40px;
+  min-width: ${(p) => p.width}px;
   min-height: 20px;
   text-align: center;
   border-right: ${(props) => props.theme.rowBorder};
@@ -47,11 +48,11 @@ export const CalendarRow = styled.div<CalendarRowProps>`
 `
 
 export const RowSeparator = styled.div`
-  flex: 100%;
+  width: 100%;
   border-top: ${(props) => props.theme.rowBorder};
 `
 
 export const ResourceCalendarBlock = styled.div`
-  overflow-x: hidden;
+  overflow-x: scroll;
   margin-bottom: 100px;
 `

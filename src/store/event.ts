@@ -22,6 +22,10 @@ export const EventModel = types
       self.updated_at = new Date().toISOString()
       self.label = str
     },
+    updateColor(color: string) {
+      self.updated_at = new Date().toISOString()
+      self.color = color
+    },
     setTentative(tentative: boolean) {
       self.updated_at = new Date().toISOString()
       self.tentative = tentative

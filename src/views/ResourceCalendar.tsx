@@ -1,13 +1,14 @@
 import { observer } from 'mobx-react-lite'
 import moment from 'moment'
-import { useEffect } from 'react'
-import { Outlet, useNavigate, useParams } from 'react-router-dom'
-import { Drawer } from '../containers/Drawer'
+import { useEffect, useState } from 'react'
+import { Outlet, useNavigate } from 'react-router-dom'
 import { ResourceCalendar } from '../containers/ResourceCalendar'
 import { useRootStore } from '../context/RootStoreContext'
 import { useWindowEvent } from '../hooks/useWindowEvent'
 import { IEventModel } from '../store/event'
 import { IResourceModel } from '../store/resource'
+import ChevronLeftIcon from '@heroicons/react/24/solid/ChevronLeftIcon'
+import ChevronRightIcon from '@heroicons/react/24/solid/ChevronRightIcon'
 
 interface QueryEventWindow {
   type: 'QueryEventWindow'
@@ -57,20 +58,26 @@ export const ResourceCalendarView = observer(() => {
   const { store } = useRootStore()
   const navigate = useNavigate()
 
-  const { id } = useParams()
-  const isExpanded = Boolean(id)
-
   const resourceIds = ['r1', 'r2', 'r3', 'r4']
-  const startDate = moment().startOf('day').toDate()
-  const cellWidth = 40
+  const [startDateISO, setStartDateISO] = useState(
+    moment().startOf('month').startOf('day').toISOString()
+  )
+  const startDate = new Date(startDateISO)
+
+  // Current MAGIC VALUES
+  const cellWidth = 50
   const bubbleHeight = 50
   const bubbleMargin = 2
 
-  const numOfDays = useWindowEvent(
+  const numOfDaysInWindow = useWindowEvent(
     'resize',
     ({ innerWidth }) => Math.ceil(innerWidth / cellWidth),
     [cellWidth]
   )
+  const numOfDays = moment(startDate)
+    .add(numOfDaysInWindow)
+    .endOf('month')
+    .diff(startDate, 'days')
 
   const calendarRows = useEventsAsCalendarRowData(
     resourceIds,
@@ -87,16 +94,45 @@ export const ResourceCalendarView = observer(() => {
     store.createEvent(resource.id, label, start, end)
   }
 
+  const onPrevious = () => {
+    setStartDateISO(
+      moment(startDateISO).subtract(1, 'month').startOf('month').toISOString()
+    )
+  }
+
+  const onNext = () => {
+    setStartDateISO(
+      moment(startDateISO).add(1, 'month').startOf('month').toISOString()
+    )
+  }
+
   const onSelectEvent = (id: string) => {
     navigate(`event/${id}`)
   }
 
   return (
-    <div className="mx-0 py-6">
+    <div className="mx-0">
+      <div className="flex px-3 py-1 space-x-4 align-middle content-center">
+        <button className="text-md text-gray-700 hover:text-gray-500">
+          Today
+        </button>
+        <button
+          className="h-8 inline-flex text-gray-700 hover:text-gray-500"
+          onClick={onPrevious}
+        >
+          <ChevronLeftIcon className="h-full" />
+        </button>
+        <button
+          className="h-8 inline-flex text-gray-700 hover:text-gray-500"
+          onClick={onNext}
+        >
+          <ChevronRightIcon className="h-full" />
+        </button>
+      </div>
       <ResourceCalendar
         data={calendarRows}
-        onMoveEvent={onMoveEvent}
         onAddEvent={onAddEvent}
+        onMoveEvent={onMoveEvent}
         onSelectEvent={onSelectEvent}
         startDate={startDate}
         numOfDays={numOfDays}

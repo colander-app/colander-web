@@ -45,5 +45,18 @@ export const getEventOffsetsById = (
 }
 
 export const filterEventsStartingOn =
-  (date: moment.Moment) => (event: IEventModel) =>
-    date.isSame(event.start_date, 'day')
+  (date: moment.Moment, windowStart: Date) => (event: IEventModel) => {
+    console.log('filter', { date, windowStart, eventStart: event.start_date })
+    return (
+      // event starts on this day
+      date.isSame(event.start_date, 'day') ||
+      // event is visible but starts before window
+      (date.isSame(windowStart, 'day') &&
+        moment(windowStart).isBetween(
+          event.start_date,
+          event.end_date,
+          'day',
+          '[]'
+        ))
+    )
+  }

@@ -1,13 +1,18 @@
 import moment from 'moment'
-import React, { useRef } from 'react'
+import React, { ReactEventHandler, ReactNode, useRef, useState } from 'react'
 import styled from 'styled-components'
 import Color from 'color'
-import Draggable, { DraggableEventHandler } from 'react-draggable'
+import Draggable, {
+  DraggableCore,
+  DraggableEvent,
+  DraggableEventHandler,
+} from 'react-draggable'
 
 interface EventBlockProps {
   numOfDays: number
   cellWidth: number
-  offset: number
+  offsetX: number
+  offsetY: number
   bgColor: string
   striped?: boolean
   isPlaceholder?: boolean
@@ -18,13 +23,16 @@ interface EventBlockProps {
 export const EventBlock = styled.div<EventBlockProps>`
   z-index: 10;
   position: absolute;
+  text-align: left;
+  padding-left: 0.8em;
   overflow-y: hidden;
   box-sizing: border-box;
   border-radius: 3px;
   min-height: 50px;
   border: solid 1px rgb(230, 230, 230);
   width: ${({ cellWidth, numOfDays }) => cellWidth * numOfDays}px;
-  margin-top: ${(props) => props.offset}px;
+  margin-top: ${(p) => p.offsetY}px;
+  left: ${(p) => p.offsetX}px;
 
   ${({ isHoveringPlaceholder, isDraggingPlaceholder, isPlaceholder }) => {
     if (isDraggingPlaceholder) {
@@ -66,7 +74,7 @@ interface EventBubbleProps {
   onClick: () => void
 }
 export const EventBubble: React.FC<
-  React.PropsWithChildren & EventBubbleProps
+  React.PropsWithChildren<EventBubbleProps>
 > = ({
   viewStart,
   viewEnd,
@@ -80,30 +88,85 @@ export const EventBubble: React.FC<
   onMove,
   onClick,
 }) => {
+  const [xOffset, setXOffset] = useState(0)
+  const touchDownXRef = useRef<number>(0)
+  const posRef = useRef<{ x: number; y: number }>()
   const nodeRef = useRef<HTMLDivElement>(null)
   const numOfDays = moment(end).diff(start, 'days') + 1
   const gridX = width
 
-  const onStop: DraggableEventHandler = (_, data) => {
-    const daysDelta = data.x / gridX
-    const newStart = moment(start).add(daysDelta, 'days').toDate()
-    const newEnd = moment(end).add(daysDelta, 'days').toDate()
-    onMove(newStart, newEnd)
+  /**
+   * Rules of movement:
+   * move event based on drag position / cell size
+   * Except when:
+   *  start date is less than view window start date
+   *    - don't shift block until pending start is greater than view start
+   *    - remove pending hidden days from numOfDays
+   *  pending start date is less than view window start date, but start date is gte view start
+   *    - cap left movement to the amount of days between event start and view start
+   *    - remove pending hidden days from numOfDays
+   */
+  const pendingDaysOffset = xOffset / gridX
+  const pendingStart = moment(start).add(pendingDaysOffset, 'days')
+  const hiddenDays = Math.max(0, moment(viewStart).diff(pendingStart, 'days'))
+  const visibleNumOfDays = numOfDays - hiddenDays
+
+  let blockOffsetX = xOffset
+  if (moment(start).isBefore(viewStart, 'days')) {
+    blockOffsetX =
+      Math.max(
+        0,
+        moment(start).add(pendingDaysOffset, 'days').diff(viewStart, 'days')
+      ) * gridX
+  } else if (pendingStart.isBefore(viewStart)) {
+    blockOffsetX =
+      Math.max(pendingDaysOffset, moment(viewStart).diff(start, 'days')) * gridX
+  }
+
+  const onStart: DraggableEventHandler = (event, data) => {
+    touchDownXRef.current = data.lastX
+    // @ts-expect-error - draggable event doesn't include client positions
+    posRef.current = { x: event.clientX, y: event.clientY }
+  }
+
+  const onDrag: DraggableEventHandler = (_, data) => {
+    setXOffset(data.x - touchDownXRef.current)
+  }
+
+  const onStop: DraggableEventHandler = (event) => {
+    const daysDelta = xOffset / gridX
+    if (daysDelta !== 0) {
+      const newStart = moment(start).add(daysDelta, 'days').toDate()
+      const newEnd = moment(end).add(daysDelta, 'days').toDate()
+      onMove(newStart, newEnd)
+    }
+    setXOffset(0)
+    // @ts-expect-error - draggable event doesn't include client positions
+    const { clientX, clientY } = event
+    if (posRef.current?.x === clientX && posRef.current?.y === clientY) {
+      onClick()
+    }
   }
 
   return (
-    <Draggable nodeRef={nodeRef} axis="x" grid={[gridX, 0]} onStop={onStop}>
+    <DraggableCore
+      nodeRef={nodeRef}
+      grid={[gridX, 0]}
+      onStart={onStart}
+      onDrag={onDrag}
+      onStop={onStop}
+    >
       <EventBlock
         ref={nodeRef}
-        numOfDays={numOfDays}
+        numOfDays={visibleNumOfDays}
         cellWidth={width}
-        offset={offset}
+        offsetX={blockOffsetX}
+        offsetY={offset}
         striped={striped}
-        onClick={onClick}
         bgColor={bgColor}
       >
         {children}
       </EventBlock>
-    </Draggable>
+    </DraggableCore>
   )
 }
