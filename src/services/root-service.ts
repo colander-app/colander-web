@@ -13,6 +13,8 @@ export interface RootService {
   subscribe: (q: Queries) => () => void
 }
 
+const API_THROTTLE_RATE_MS = 1000
+
 const seedResources: SnapshotIn<typeof ResourceModel>[] = [
   {
     id: 'r1',
@@ -61,6 +63,7 @@ export const makeRootService = (): RootService => {
   const queueResourceUpdates = makeUpdaterQueue<
     SnapshotOut<typeof ResourceModel>
   >({
+    throttleRateMs: API_THROTTLE_RATE_MS,
     update: async (model) => {
       // const serverEntity = serverStore.resources.get(model.id)
       // await DataStore.save(
@@ -78,6 +81,7 @@ export const makeRootService = (): RootService => {
   })
 
   const queueEventUpdates = makeUpdaterQueue<SnapshotOut<typeof EventModel>>({
+    throttleRateMs: API_THROTTLE_RATE_MS,
     update: async (model) => {
       sendMessage(JSON.stringify({ action: 'putEvent', data: model }))
     },

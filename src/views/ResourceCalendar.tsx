@@ -106,6 +106,10 @@ export const ResourceCalendarView = observer(() => {
     )
   }
 
+  const onToday = () => {
+    setStartDateISO(moment().startOf('month').startOf('day').toISOString())
+  }
+
   const onSelectEvent = (id: string) => {
     navigate(`event/${id}`)
   }
@@ -113,7 +117,10 @@ export const ResourceCalendarView = observer(() => {
   return (
     <div className="mx-0">
       <div className="flex px-3 py-1 space-x-4 align-middle content-center">
-        <button className="text-md text-gray-700 hover:text-gray-500">
+        <button
+          className="text-md text-gray-700 hover:text-gray-500"
+          onClick={onToday}
+        >
           Today
         </button>
         <button
