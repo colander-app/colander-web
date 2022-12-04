@@ -46,7 +46,6 @@ export const getEventOffsetsById = (
 
 export const filterEventsStartingOn =
   (date: moment.Moment, windowStart: Date) => (event: IEventModel) => {
-    console.log('filter', { date, windowStart, eventStart: event.start_date })
     return (
       // event starts on this day
       date.isSame(event.start_date, 'day') ||

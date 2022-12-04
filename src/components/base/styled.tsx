@@ -15,7 +15,7 @@ export const DateBlock = styled.div<DateBlockProps>`
 `
 export const HeaderLabelBlock = styled.div<DateBlockProps>`
   min-width: ${(p) => p.width}px;
-  min-height: 20px;
+  height: 3rem;
   text-align: center;
   border-right: ${(props) => props.theme.rowBorder};
   color: ${(props) => props.theme.headerTextColor};
@@ -37,19 +37,20 @@ export const ResourceLabelBlock = styled.div`
 `
 
 interface CalendarRowProps {
-  isHeader?: boolean
+  topBorder?: boolean
+  bottomBorder?: boolean
   height?: number
 }
 export const CalendarRow = styled.div<CalendarRowProps>`
-  display: flex;
+  display: inline-flex;
+  overflow-x: hidden;
+  margin-top: 0;
+  margin-bottom: 0;
   min-height: ${(props) => props.height ?? 0}px;
   ${(props) =>
-    props.isHeader ? `border-top: ${props.theme.rowBorder};` : null}
-`
-
-export const RowSeparator = styled.div`
-  width: 100%;
-  border-top: ${(props) => props.theme.rowBorder};
+    props.topBorder ? `border-top: ${props.theme.rowBorder};` : null}
+  ${(props) =>
+    props.bottomBorder ? `border-bottom: ${props.theme.rowBorder};` : null}
 `
 
 export const ResourceCalendarBlock = styled.div`
