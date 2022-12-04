@@ -10,20 +10,22 @@ export const makeWebsocketService = ({ endpoint, onMessage }: Dependencies) => {
   let messageQueue: string[] = []
   let isOpened = false
 
-  const sendMessage = (data: string) => {
+  const sendMessage = (data: string | Record<string, any>) => {
+    const msg = typeof data === 'string' ? data : JSON.stringify(data)
     if (isOpened && ws) {
       console.log('WS (out)>', data)
-      ws.send(data)
+      ws.send(msg)
     } else {
       console.log('WS (queue)>', data)
-      messageQueue.push(data)
+      messageQueue.push(msg)
     }
   }
 
   function onMessageEvent(event: MessageEvent<any>) {
     try {
-      console.log('WS (in)>')
-      onMessage(JSON.parse(event.data))
+      const msg = JSON.parse(event.data)
+      console.log('WS (in)>', msg)
+      onMessage(msg)
     } catch (err) {
       console.log('WS (FORMAT_ERR)>', event.data)
     }

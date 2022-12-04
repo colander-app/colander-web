@@ -13,6 +13,7 @@ import {
   getEventOffsetBuckets,
   getEventOffsetsById,
   filterEventsStartingOn,
+  eventsInRange,
 } from '../util/events'
 import { IResourceModel } from '../store/resource'
 import { IEventModel } from '../store/event'
@@ -58,7 +59,6 @@ export const ResourceCalendar: React.FC<Props & PropsWithChildren> = observer(
   }) => {
     const getHeight = makeGetHeight(bubbleHeight, bubbleMargin)
     const endDate = moment(startDate).add(numOfDays, 'days').toDate()
-
     return (
       <ResourceCalendarBlock>
         <div className="flex flex-row">
@@ -67,7 +67,9 @@ export const ResourceCalendar: React.FC<Props & PropsWithChildren> = observer(
               <ResourceLabelBlock style={{ height: '3rem' }} />
             </CalendarRow>
             {data.map(({ resource, events }, i) => {
-              const buckets = getEventOffsetBuckets(events)
+              const buckets = getEventOffsetBuckets(
+                eventsInRange(events, startDate, endDate)
+              )
               const hasBottomBorder = isLastElement(data, i)
               return (
                 <React.Fragment key={resource.id}>
@@ -97,7 +99,9 @@ export const ResourceCalendar: React.FC<Props & PropsWithChildren> = observer(
                 </DateList>
               </CalendarRow>
               {data.map(({ resource, events }, i) => {
-                const buckets = getEventOffsetBuckets(events)
+                const buckets = getEventOffsetBuckets(
+                  eventsInRange(events, startDate, endDate)
+                )
                 const eventOffsets = getEventOffsetsById(buckets)
                 const hasBottomBorder = isLastElement(data, i)
                 return (

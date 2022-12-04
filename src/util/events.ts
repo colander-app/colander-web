@@ -26,6 +26,21 @@ export const getEventOffsetBuckets = (
   return offsetBuckets
 }
 
+export const eventsInRange = (
+  events: Array<IEventModel>,
+  start: Date,
+  end: Date
+) => {
+  const start_date = moment(start)
+  const end_date = moment(end)
+  return events.filter((event) => {
+    return (
+      start_date.isSameOrBefore(moment(event.end_date), 'day') &&
+      end_date.isSameOrAfter(moment(event.start_date), 'day')
+    )
+  })
+}
+
 export const getEventOffsetsById = (
   buckets: Array<Array<Readonly<IEventModel>>>
 ): Record<string, number> => {
@@ -48,9 +63,9 @@ export const filterEventsStartingOn =
   (date: moment.Moment, windowStart: Date) => (event: IEventModel) => {
     return (
       // event starts on this day
-      date.isSame(event.start_date, 'day') ||
+      date.isSame(moment(event.start_date), 'day') ||
       // event is visible but starts before window
-      (date.isSame(windowStart, 'day') &&
+      (date.isSame(moment(windowStart), 'day') &&
         moment(windowStart).isBetween(
           event.start_date,
           event.end_date,

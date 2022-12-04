@@ -7,13 +7,17 @@ import { makeUpdaterQueue } from './updater-queue'
 import { Queries } from './live-model/query-interfaces'
 import config from '../config.json'
 import { makeWebsocketService } from './websocket'
+import {
+  subscribeToEventRange,
+  unsubscribeFromEventRange,
+} from '../requests/events'
 
 export interface RootService {
   store: IRootStoreModel
   subscribe: (q: Queries) => () => void
 }
 
-const API_THROTTLE_RATE_MS = 1000
+const API_THROTTLE_RATE_MS = 500
 
 const seedResources: SnapshotIn<typeof ResourceModel>[] = [
   {
@@ -65,12 +69,7 @@ export const makeRootService = (): RootService => {
   >({
     throttleRateMs: API_THROTTLE_RATE_MS,
     update: async (model) => {
-      // const serverEntity = serverStore.resources.get(model.id)
-      // await DataStore.save(
-      //   serverEntity
-      //     ? Resource.copyOf(getSnapshot(serverEntity), () => model)
-      //     : new Resource(model)
-      // )
+      sendMessage({ action: 'putResource', data: model })
     },
     onUpdateFailed(model) {
       const serverEntity = serverStore.resources.get(model.id)
@@ -83,7 +82,7 @@ export const makeRootService = (): RootService => {
   const queueEventUpdates = makeUpdaterQueue<SnapshotOut<typeof EventModel>>({
     throttleRateMs: API_THROTTLE_RATE_MS,
     update: async (model) => {
-      sendMessage(JSON.stringify({ action: 'putEvent', data: model }))
+      sendMessage({ action: 'putEvent', data: model })
     },
     onUpdateFailed(model) {
       const serverEntity = serverStore.events.get(model.id)
@@ -114,33 +113,10 @@ export const makeRootService = (): RootService => {
   })
 
   const subscribe = (query: Queries): (() => void) => {
-    if (query.type === 'QueryEventWindow') {
-      const unsubscribers = query.resourceIds.map((resource_id) => {
-        // subscribe to event range here.
-        sendMessage(
-          JSON.stringify({
-            action: 'subscribeToEventRange',
-            query: {
-              resource_id,
-              start_date: query.viewStart.toISOString(),
-              end_date: query.viewEnd.toISOString(),
-            },
-          })
-        )
-        return () => {
-          // unsubscribe from event range here.
-          sendMessage(
-            JSON.stringify({
-              action: 'unsubscribeFromEventRange',
-              data: {
-                resource_id,
-              },
-            })
-          )
-        }
-      })
+    if (query.type === 'subscribeToEventRange') {
+      sendMessage(subscribeToEventRange(query))
       return () => {
-        unsubscribers.forEach((unsubscribe) => unsubscribe())
+        sendMessage(unsubscribeFromEventRange(query.resourceIds))
       }
     }
     return () => {}

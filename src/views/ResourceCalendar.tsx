@@ -9,13 +9,7 @@ import { IEventModel } from '../store/event'
 import { IResourceModel } from '../store/resource'
 import ChevronLeftIcon from '@heroicons/react/24/solid/ChevronLeftIcon'
 import ChevronRightIcon from '@heroicons/react/24/solid/ChevronRightIcon'
-
-interface QueryEventWindow {
-  type: 'QueryEventWindow'
-  resourceIds: string[]
-  viewStart: Date
-  viewEnd: Date
-}
+import { QueryEventWindow } from '../services/live-model/query-interfaces'
 
 const makeQueryEventWindow = (
   resourceIds: string[],
@@ -23,7 +17,7 @@ const makeQueryEventWindow = (
   viewEnd: Date
 ): QueryEventWindow => {
   return {
-    type: 'QueryEventWindow',
+    type: 'subscribeToEventRange',
     resourceIds,
     viewStart,
     viewEnd,

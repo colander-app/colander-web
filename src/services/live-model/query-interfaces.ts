@@ -1,5 +1,5 @@
 export interface QueryEventWindow {
-  type: 'QueryEventWindow'
+  type: 'subscribeToEventRange'
   resourceIds: string[]
   viewStart: Date
   viewEnd: Date
