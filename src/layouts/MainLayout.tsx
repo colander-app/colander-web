@@ -2,9 +2,10 @@ import { ThemeProvider } from 'styled-components'
 import { NavLink, NavLinkProps, Outlet } from 'react-router-dom'
 import { Disclosure, Menu, Transition } from '@headlessui/react'
 import BellIcon from '@heroicons/react/24/outline/BellIcon'
-import { Fragment, ReactElement, ReactNode } from 'react'
+import { Fragment, ReactElement } from 'react'
 import XMarkIcon from '@heroicons/react/24/outline/XMarkIcon'
 import Bars3Icon from '@heroicons/react/24/outline/Bars3Icon'
+import colanderLogo from '../images/colander2.svg'
 
 const borderColor = 'rgb(211, 211, 211)'
 const primaryTheme = {
@@ -48,8 +49,9 @@ export const MainLayout = () => {
                     <div className="flex-shrink-0">
                       <img
                         className="h-8 w-8"
-                        src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=500"
-                        alt="Your Company"
+                        src={colanderLogo}
+                        alt="Colander App"
+                        style={{ filter: 'invert(1)' }}
                       />
                     </div>
                     <div className="hidden md:block">
