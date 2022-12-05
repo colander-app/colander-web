@@ -6,6 +6,7 @@ import { Fragment, ReactElement } from 'react'
 import XMarkIcon from '@heroicons/react/24/outline/XMarkIcon'
 import Bars3Icon from '@heroicons/react/24/outline/Bars3Icon'
 import colanderLogo from '../images/colander2.svg'
+import { classNames } from '../util/classNames'
 
 const borderColor = 'rgb(211, 211, 211)'
 const primaryTheme = {
@@ -13,10 +14,6 @@ const primaryTheme = {
   headerTextColor: 'rgb(120, 120, 120)',
   rowBorder: `solid 1px ${borderColor}`,
   weekendColor: 'rgb(246, 251, 251)',
-}
-
-function classNames(...classes: string[]): string {
-  return classes.filter(Boolean).join(' ')
 }
 
 const user = {
@@ -225,12 +222,8 @@ export const MainLayout = () => {
           <Outlet />
         </main>
       </div>
-      <footer className="footer">
-        <div className="content has-text-centered is-size-7">
-          <p>
-            Powered By <b>COLANDERAPP.IO</b>
-          </p>
-        </div>
+      <footer>
+        {/* <div><p>Powered By <b>COLANDERAPP.IO</b></p></div> */}
       </footer>
     </ThemeProvider>
   )
