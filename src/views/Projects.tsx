@@ -3,8 +3,9 @@ import SearchIcon from '@heroicons/react/20/solid/MagnifyingGlassIcon'
 import ChevronLeftIcon from '@heroicons/react/24/solid/ChevronLeftIcon'
 import ChevronRightIcon from '@heroicons/react/24/solid/ChevronRightIcon'
 import { Button } from '../components/Button'
+import { observer } from 'mobx-react-lite'
 
-export const ProjectsView = () => {
+export const ProjectsView = observer(() => {
   const groupVariant = 'primary'
   return (
     <div className="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8">
@@ -37,19 +38,19 @@ export const ProjectsView = () => {
               scope="col"
               className="text-sm font-bold text-gray-900 px-6 py-4 text-left"
             >
-              Song
+              ID
             </th>
             <th
               scope="col"
               className="text-sm font-bold text-gray-900 px-6 py-4 text-left"
             >
-              Artist
+              Name
             </th>
             <th
               scope="col"
               className="text-sm font-bold text-gray-900 px-6 py-4 text-left"
             >
-              Year
+              Color
             </th>
           </tr>
         </thead>
@@ -91,4 +92,4 @@ export const ProjectsView = () => {
       </table>
     </div>
   )
-}
+})

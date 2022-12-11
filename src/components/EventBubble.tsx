@@ -1,12 +1,8 @@
-import moment from 'moment'
-import React, { ReactEventHandler, ReactNode, useRef, useState } from 'react'
+import React, { useRef, useState } from 'react'
+import { DraggableCore, DraggableEventHandler } from 'react-draggable'
 import styled from 'styled-components'
+import moment from 'moment'
 import Color from 'color'
-import Draggable, {
-  DraggableCore,
-  DraggableEvent,
-  DraggableEventHandler,
-} from 'react-draggable'
 
 interface EventBlockProps {
   numOfDays: number
@@ -61,6 +57,44 @@ export const EventBlock = styled.div<EventBlockProps>`
   }}
 `
 
+const calculateDragView = ({
+  grid,
+  offset,
+  start,
+  end,
+  viewStart,
+}: {
+  grid: number
+  offset: number
+  start: Date
+  end: Date
+  viewStart: Date
+}) => {
+  const pendingDaysOffset = offset / grid
+  const numOfDays = moment(end).diff(start, 'days') + 1
+  const pendingStart = moment(start).add(pendingDaysOffset, 'days')
+  const hiddenDays = Math.max(0, moment(viewStart).diff(pendingStart, 'days'))
+  const visibleNumOfDays = numOfDays - hiddenDays
+
+  let visibleOffset = offset
+
+  if (moment(start).isBefore(viewStart, 'days')) {
+    visibleOffset =
+      Math.max(
+        0,
+        moment(start).add(pendingDaysOffset, 'days').diff(viewStart, 'days')
+      ) * grid
+  } else if (pendingStart.isBefore(viewStart)) {
+    visibleOffset =
+      Math.max(pendingDaysOffset, moment(viewStart).diff(start, 'days')) * grid
+  }
+
+  return {
+    visibleOffset,
+    visibleNumOfDays,
+  }
+}
+
 interface EventBubbleProps {
   viewStart: Date
   viewEnd: Date
@@ -88,12 +122,14 @@ export const EventBubble: React.FC<
   onMove,
   onClick,
 }) => {
+  // Current drag offset position
   const [xOffset, setXOffset] = useState(0)
+  // pixel offset from left side of event to touch down event
   const touchDownXRef = useRef<number>(0)
+  // client position when of intiial touch down event
   const posRef = useRef<{ x: number; y: number }>()
+  // Actual node being repositioned on drag
   const nodeRef = useRef<HTMLDivElement>(null)
-  const numOfDays = moment(end).diff(start, 'days') + 1
-  const gridX = width
 
   /**
    * Rules of movement:
@@ -106,22 +142,15 @@ export const EventBubble: React.FC<
    *    - cap left movement to the amount of days between event start and view start
    *    - remove pending hidden days from numOfDays
    */
-  const pendingDaysOffset = xOffset / gridX
-  const pendingStart = moment(start).add(pendingDaysOffset, 'days')
-  const hiddenDays = Math.max(0, moment(viewStart).diff(pendingStart, 'days'))
-  const visibleNumOfDays = numOfDays - hiddenDays
+  const gridX = width
 
-  let blockOffsetX = xOffset
-  if (moment(start).isBefore(viewStart, 'days')) {
-    blockOffsetX =
-      Math.max(
-        0,
-        moment(start).add(pendingDaysOffset, 'days').diff(viewStart, 'days')
-      ) * gridX
-  } else if (pendingStart.isBefore(viewStart)) {
-    blockOffsetX =
-      Math.max(pendingDaysOffset, moment(viewStart).diff(start, 'days')) * gridX
-  }
+  const dragView = calculateDragView({
+    grid: gridX,
+    offset: xOffset,
+    start,
+    end,
+    viewStart,
+  })
 
   const onStart: DraggableEventHandler = (event, data) => {
     touchDownXRef.current = data.lastX
@@ -158,10 +187,10 @@ export const EventBubble: React.FC<
     >
       <EventBlock
         ref={nodeRef}
-        numOfDays={visibleNumOfDays}
-        cellWidth={width}
-        offsetX={blockOffsetX}
+        numOfDays={dragView.visibleNumOfDays}
+        offsetX={dragView.visibleOffset}
         offsetY={offset}
+        cellWidth={width}
         striped={striped}
         bgColor={bgColor}
       >

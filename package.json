@@ -17,6 +17,7 @@
     "@headlessui/react": "^1.7.4",
     "@heroicons/react": "^2.0.13",
     "color": "^4.2.3",
+    "ky": "^0.32.2",
     "mobx": "^6.6.2",
     "mobx-react-lite": "^3.4.0",
     "mobx-state-tree": "^5.1.6",

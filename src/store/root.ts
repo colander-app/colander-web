@@ -1,12 +1,25 @@
 import { v4 as uuidv4 } from 'uuid'
-import { types, Instance, SnapshotOrInstance, cast } from 'mobx-state-tree'
+import {
+  types,
+  Instance,
+  SnapshotOrInstance,
+  cast,
+  SnapshotOut,
+} from 'mobx-state-tree'
 import { EventModel } from './event'
 import { ResourceModel } from './resource'
+import { UploadModel } from './upload'
+
+type AllModels =
+  | SnapshotOrInstance<typeof EventModel>
+  | SnapshotOrInstance<typeof ResourceModel>
+  | SnapshotOrInstance<typeof UploadModel>
 
 export const RootStoreModel = types
   .model({
     resources: types.map(ResourceModel),
     events: types.map(EventModel),
+    uploads: types.map(UploadModel),
   })
   .views((self) => ({
     getResources(ids: string[]) {
@@ -22,14 +35,36 @@ export const RootStoreModel = types
   }))
   .actions((self) => {
     return {
-      setResources(resources: Array<SnapshotOrInstance<typeof ResourceModel>>) {
-        resources.forEach((resource) => {
-          self.resources.set(resource.id, cast(resource))
+      set(items: Array<AllModels>) {
+        items.forEach((item) => {
+          switch (item.__type) {
+            case 'event':
+              self.events.set(item.id, cast(item))
+              return
+            case 'resource':
+              self.resources.set(item.id, cast(item))
+              return
+            case 'upload':
+              self.uploads.set(item.id, cast(item))
+              return
+            default:
+              console.warn(
+                `Cannot place unknown model type ${item.__type} in root store.`,
+                item
+              )
+          }
         })
       },
-      setEvents(events: Array<SnapshotOrInstance<typeof EventModel>>) {
-        events.forEach((event) => {
-          self.events.set(event.id, cast(event))
+      createUpload(
+        uploadInput: Omit<
+          SnapshotOut<typeof UploadModel>,
+          'id' | 'updated_at' | 'upload_id' | 'parts' | 'expire_at'
+        >
+      ) {
+        self.uploads.put({
+          id: uuidv4(),
+          updated_at: new Date().toISOString(),
+          ...uploadInput,
         })
       },
       createEvent(resource_id: string, label: string, start: Date, end: Date) {
@@ -38,17 +73,16 @@ export const RootStoreModel = types
           console.error('Resource not found with id', resource_id)
           return
         }
-        const event = EventModel.create({
+        self.events.put({
           id: uuidv4(),
           updated_at: new Date().toISOString(),
           start_date: start.toISOString(),
           end_date: end.toISOString(),
           tentative: false,
-          color: 'grey',
+          color: '#CCC',
           label,
           resource_id,
         })
-        self.events.put(event)
       },
     }
   })
