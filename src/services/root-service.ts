@@ -142,9 +142,10 @@ export const makeRootService = (): RootService => {
   }
 
   const uploadService = makeUploadService({
-    onNewUpload(filename, size, content_type, resource_id, event_id) {
+    onNewUpload(id, filename, size, content_type, resource_id, event_id) {
       console.log(
         'Adding upload to store',
+        id,
         filename,
         size,
         resource_id,
@@ -154,11 +155,13 @@ export const makeRootService = (): RootService => {
         __type: 'upload',
         status: 'uploading',
         uploader: 'me',
+        id,
         resource_id,
         event_id,
         filename,
         size,
         content_type,
+        read_link: undefined,
       })
     },
     onPartUploaded(upload_id, part, etag) {

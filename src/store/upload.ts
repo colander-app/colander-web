@@ -24,6 +24,12 @@ export const UploadModel = types
     filename: types.string,
     content_type: types.string,
     size: types.number,
+    read_link: types.maybe(
+      types.model({
+        expire_at: types.number,
+        url: types.string,
+      })
+    ),
     parts: types.maybe(types.array(UploadPart)),
     updated_at: types.string,
   })

@@ -1,4 +1,5 @@
 import ky from 'ky'
+import { v4 as uuidv4 } from 'uuid'
 import { SnapshotOrInstance } from 'mobx-state-tree'
 import { UploadModel } from '../store/upload'
 
@@ -11,6 +12,7 @@ export interface UploadService {
 
 interface Dependencies {
   onNewUpload: (
+    id: string,
     filename: string,
     size: number,
     content_type: string,
@@ -28,20 +30,20 @@ export const makeUploadService = ({
   const uploads_in_progress = new Set<string>()
 
   const initUpload = (file: File, resource_id: string, event_id: string) => {
-    onNewUpload(file.name, file.size, file.type, resource_id, event_id)
-    files.set(file.name, file)
+    const id = uuidv4()
+    files.set(id, file)
+    onNewUpload(id, file.name, file.size, file.type, resource_id, event_id)
   }
 
   const uploadPart = (
     key: string,
     id: string,
-    filename: string,
     part: number,
     start: number,
     end: number,
     url: string
   ) => {
-    const file = files.get(filename)
+    const file = files.get(id)
     if (!file) {
       return
     }
@@ -51,6 +53,10 @@ export const makeUploadService = ({
       const result = await ky.put(url, {
         body: reader.result,
         throwHttpErrors: false,
+        timeout: false,
+        retry: {
+          limit: 3,
+        },
       })
       const etag = result.headers.get('ETag')
       if (!etag || result.status !== 200) {
@@ -74,7 +80,7 @@ export const makeUploadService = ({
   ) => {
     uploads.forEach((upload) => {
       // Ensure to discard unrelated or not-ready uploads
-      if (!files.has(upload.filename) || !upload.upload_id) {
+      if (!files.has(upload.id) || !upload.upload_id) {
         return
       }
       upload.parts?.forEach((part) => {
@@ -90,7 +96,6 @@ export const makeUploadService = ({
           uploadPart(
             key,
             upload.id,
-            upload.filename,
             part.part,
             part.start_byte,
             part.end_byte,

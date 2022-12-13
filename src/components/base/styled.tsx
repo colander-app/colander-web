@@ -43,6 +43,7 @@ interface CalendarRowProps {
 }
 export const CalendarRow = styled.div<CalendarRowProps>`
   display: inline-flex;
+  box-sizing: border-box;
   overflow-x: hidden;
   margin-top: 0;
   margin-bottom: 0;

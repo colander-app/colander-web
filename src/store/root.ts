@@ -58,11 +58,10 @@ export const RootStoreModel = types
       createUpload(
         uploadInput: Omit<
           SnapshotOut<typeof UploadModel>,
-          'id' | 'updated_at' | 'upload_id' | 'parts' | 'expire_at'
+          'updated_at' | 'upload_id' | 'parts' | 'expire_at'
         >
       ) {
         self.uploads.put({
-          id: uuidv4(),
           updated_at: new Date().toISOString(),
           ...uploadInput,
         })

@@ -148,15 +148,29 @@ export const EventDetailsView = observer(() => {
         <ul>
           {uploads.map((upload) => (
             <li key={upload.id}>
-              {upload.filename} ({upload.content_type}) ({upload.status})
-              <ul>
-                {upload.parts?.map((part) => (
-                  <li key={part.part}>
-                    #{part.part} -{' '}
-                    {part.uploaded ? 'uploaded!' : 'uploading...'}
-                  </li>
+              {upload.read_link?.url ? (
+                <a target="_blank" href={upload.read_link?.url}>
+                  {upload.filename}
+                </a>
+              ) : (
+                upload.filename
+              )}{' '}
+              ({upload.status}{' '}
+              {Math.floor(
+                (100 * (upload.parts?.filter((p) => p.uploaded).length ?? 1)) /
+                  (upload.parts?.length ?? 1)
+              )}
+              %)
+              <br />
+              <div style={{ width: '100%', wordWrap: 'break-word' }}>
+                [
+                {upload.parts?.map((p) => (
+                  <span key={p.part}>
+                    {p.uploaded ? (p.signed_upload_url ? '-' : '=') : '_'}
+                  </span>
                 ))}
-              </ul>
+                ]
+              </div>
             </li>
           ))}
         </ul>
