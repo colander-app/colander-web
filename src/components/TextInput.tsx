@@ -8,7 +8,7 @@ export const TextInput = forwardRef<HTMLInputElement, InputProps>(
   ({ className, ...props }: InputProps, ref) => {
     return (
       <input
-        className={`shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${className}`}
+        className={`border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-3 ${className}`}
         ref={ref}
         {...props}
       />

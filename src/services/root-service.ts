@@ -13,6 +13,7 @@ import {
 } from '../requests/events'
 import { UploadModel } from '../store/upload'
 import { makeUploadService, UploadService } from './upload-service'
+import { ProjectModel } from '../store/project'
 
 export interface RootService {
   store: IRootStoreModel
@@ -70,6 +71,21 @@ export const makeRootService = (): RootService => {
     },
   })
 
+  const queueProjectUpdates = makeUpdaterQueue<
+    SnapshotOut<typeof ProjectModel>
+  >({
+    throttleRateMs: API_THROTTLE_RATE_MS,
+    update: async (model) => {
+      sendMessage({ action: 'putProject', data: model })
+    },
+    onUpdateFailed(model) {
+      const serverEntity = serverStore.projects.get(model.id)
+      if (serverEntity) {
+        store.set([serverEntity])
+      }
+    },
+  })
+
   const queueResourceUpdates = makeUpdaterQueue<
     SnapshotOut<typeof ResourceModel>
   >({
@@ -109,6 +125,16 @@ export const makeRootService = (): RootService => {
         store.set([serverEntity])
       }
     },
+  })
+
+  autorun(() => {
+    const projects = Object.values(getSnapshot(store.projects))
+    const modifiedProjects = projects.filter(
+      ({ id, updated_at }) =>
+        new Date(updated_at) >
+        new Date(serverStore.projects.get(id)?.updated_at ?? 0)
+    )
+    queueProjectUpdates(modifiedProjects)
   })
 
   autorun(() => {

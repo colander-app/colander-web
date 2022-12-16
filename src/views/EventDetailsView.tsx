@@ -5,7 +5,8 @@ import { DateInput } from '../components/DateInput'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Drawer } from '../containers/Drawer'
 import { HexColorInput, HexColorPicker } from 'react-colorful'
-import { ChangeEventHandler, useState } from 'react'
+import { ChangeEventHandler } from 'react'
+import { TextInput } from '../components/TextInput'
 
 export const EventDetailsView = observer(() => {
   const { store, uploadService } = useRootStore()
@@ -70,16 +71,19 @@ export const EventDetailsView = observer(() => {
         </label>
       </div>
       <div className="mb-3">
-        <label className="block text-gray-700 text-sm font-bold mb-2">
+        <label
+          htmlFor="eventLabel"
+          className="block text-gray-700 text-sm font-bold mb-2"
+        >
           Label
-          <input
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            type="text"
-            placeholder="Label"
-            defaultValue={event.label}
-            onBlur={(e) => changeLabel(e.target.value)}
-          />
         </label>
+        <TextInput
+          id="eventLabel"
+          className="w-full"
+          placeholder="Label"
+          defaultValue={event.label}
+          onBlur={(e) => changeLabel(e.target.value)}
+        />
       </div>
       <div className="mb-3">
         <label
@@ -133,21 +137,24 @@ export const EventDetailsView = observer(() => {
         <HexColorPicker color={event.color} onChange={changeColor} />
       </div>
       <div className="mb-3">
-        <label className="form-label inline-block mb-2 text-gray-700">
+        <label
+          htmlFor="uploadAttachments"
+          className="block text-gray-700 text-sm font-bold mb-2"
+        >
           Attachments
-          <input
-            className="form-control block w-full px-3 py-1.5 text-base font-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
-            type="file"
-            id="uploadAttachments"
-            multiple
-            onChange={onAddFiles}
-          />
         </label>
+        <input
+          className="form-control block w-full px-3 py-1.5 text-base font-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
+          type="file"
+          id="uploadAttachments"
+          multiple
+          onChange={onAddFiles}
+        />
       </div>
       <div className="mb-3">
         <ul>
           {uploads.map((upload) => (
-            <li key={upload.id}>
+            <li className="my-3" key={upload.id}>
               {upload.read_link?.url ? (
                 <a target="_blank" href={upload.read_link?.url}>
                   {upload.filename}
@@ -155,22 +162,31 @@ export const EventDetailsView = observer(() => {
               ) : (
                 upload.filename
               )}{' '}
-              ({upload.status}{' '}
-              {Math.floor(
-                (100 * (upload.parts?.filter((p) => p.uploaded).length ?? 1)) /
-                  (upload.parts?.length ?? 1)
+              {upload.status !== 'complete' && (
+                <>
+                  ({upload.status}{' '}
+                  {Math.floor(
+                    (100 *
+                      (upload.parts?.filter((p) => p.uploaded).length ?? 1)) /
+                      (upload.parts?.length ?? 1)
+                  )}
+                  %)
+                </>
               )}
-              %)
-              <br />
-              <div style={{ width: '100%', wordWrap: 'break-word' }}>
-                [
-                {upload.parts?.map((p) => (
-                  <span key={p.part}>
-                    {p.uploaded ? (p.signed_upload_url ? '-' : '=') : '_'}
-                  </span>
-                ))}
-                ]
-              </div>
+              {upload.parts && (
+                <>
+                  <br />
+                  <div style={{ width: '100%', wordWrap: 'break-word' }}>
+                    [
+                    {upload.parts?.map((p) => (
+                      <span key={p.part}>
+                        {p.uploaded ? (p.signed_upload_url ? '-' : '=') : '_'}
+                      </span>
+                    ))}
+                    ]
+                  </div>
+                </>
+              )}
             </li>
           ))}
         </ul>

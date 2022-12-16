@@ -1,3 +1,18 @@
-export const ResourcesView = () => {
-  return <div className="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8">Resources</div>
-}
+import { observer } from 'mobx-react-lite'
+import { TableView } from '../containers/TableView'
+import { useRootStore } from '../context/RootStoreContext'
+
+export const ResourcesView = observer(() => {
+  const { store } = useRootStore()
+  return (
+    <TableView
+      columns={{
+        name: 'Name',
+        created_on: 'Created On',
+        created_by: 'Created By',
+      }}
+      rows={Array.from(store.resources.values())}
+      zeroStateNode="No Resources"
+    />
+  )
+})

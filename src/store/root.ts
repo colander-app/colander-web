@@ -9,17 +9,20 @@ import {
 import { EventModel } from './event'
 import { ResourceModel } from './resource'
 import { UploadModel } from './upload'
+import { ProjectModel } from './project'
 
 type AllModels =
   | SnapshotOrInstance<typeof EventModel>
   | SnapshotOrInstance<typeof ResourceModel>
   | SnapshotOrInstance<typeof UploadModel>
+  | SnapshotOrInstance<typeof ProjectModel>
 
 export const RootStoreModel = types
   .model({
     resources: types.map(ResourceModel),
     events: types.map(EventModel),
     uploads: types.map(UploadModel),
+    projects: types.map(ProjectModel),
   })
   .views((self) => ({
     getResources(ids: string[]) {
@@ -46,6 +49,9 @@ export const RootStoreModel = types
               return
             case 'upload':
               self.uploads.set(item.id, cast(item))
+              return
+            case 'project':
+              self.projects.set(item.id, cast(item))
               return
             default:
               console.warn(

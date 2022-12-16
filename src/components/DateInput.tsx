@@ -17,6 +17,7 @@ export const DateInput = forwardRef<HTMLInputElement, InputProps>(
           onClick={onClick}
           onChange={onChange}
           value={value}
+          className="w-full"
         />
       </div>
     )
