@@ -8,9 +8,12 @@ export const ResourcesView = observer(() => {
     <TableView
       columns={{
         name: 'Name',
-        created_on: 'Created On',
-        created_by: 'Created By',
+        // created_on: 'Created On',
+        // created_by: 'Created By',
       }}
+      keyProp="id"
+      searchPlaceholder="Search Resources"
+      searchKeys={['name']}
       rows={Array.from(store.resources.values())}
       zeroStateNode="No Resources"
     />

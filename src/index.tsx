@@ -4,7 +4,7 @@ import { MainLayout } from './layouts/MainLayout'
 import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom'
 import { ResourceCalendarView } from './views/ResourceCalendar'
 import { RootStoreProvider } from './context/RootStoreContext'
-import { EventDetailsView } from './views/EventDetailsView'
+import { EventDetailsView } from './views/EventDetails'
 import { ResourcesView } from './views/Resources'
 import { ProjectsView } from './views/Projects'
 
