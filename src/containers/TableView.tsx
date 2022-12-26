@@ -54,12 +54,16 @@ interface TableViewProps<T extends Record<string, any>> {
   searchPlaceholder?: string
   pageSize?: number
   zeroStateNode?: ReactNode
+  addBtnText?: string
+  onAddBtnClick?: () => void
 }
 export const TableView = <T extends Record<string, any>>({
   columns,
   rows,
   searchKeys,
   keyProp,
+  addBtnText,
+  onAddBtnClick,
   searchPlaceholder = '',
   pageSize = 10,
   zeroStateNode = 'No Data to Display',
@@ -112,6 +116,13 @@ export const TableView = <T extends Record<string, any>>({
             onChange={onSearchChange}
           />
         </div>
+        <button
+          type="button"
+          className="inline-block px-6 py-3 border-2 border-blue-600 text-blue-600 font-medium text-xs leading-tight uppercase rounded hover:bg-black hover:bg-opacity-5 focus:outline-none focus:ring-0 transition duration-150 ease-in-out"
+          onClick={() => onAddBtnClick?.()}
+        >
+          {addBtnText}
+        </button>
       </div>
       <div className="overflow-x-auto">
         <table className="min-w-full">

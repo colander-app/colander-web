@@ -35,8 +35,8 @@ export const eventsInRange = (
   const end_date = moment(end)
   return events.filter((event) => {
     return (
-      start_date.isSameOrBefore(moment(event.end_date), 'day') &&
-      end_date.isSameOrAfter(moment(event.start_date), 'day')
+      start_date.isSameOrBefore(moment(event.end_date).local(), 'day') &&
+      end_date.isSameOrAfter(moment(event.start_date).local(), 'day')
     )
   })
 }
@@ -63,12 +63,12 @@ export const filterEventsStartingOn =
   (date: moment.Moment, windowStart: Date) => (event: IEventModel) => {
     return (
       // event starts on this day
-      date.isSame(moment(event.start_date), 'day') ||
+      date.isSame(moment(event.start_date).local(), 'day') ||
       // event is visible but starts before window
       (date.isSame(moment(windowStart), 'day') &&
         moment(windowStart).isBetween(
-          event.start_date,
-          event.end_date,
+          moment(event.start_date).local(),
+          moment(event.end_date).local(),
           'day',
           '[]'
         ))

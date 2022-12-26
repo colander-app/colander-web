@@ -2,29 +2,32 @@ import DatePicker from 'react-datepicker'
 import { observer } from 'mobx-react-lite'
 import { useRootStore } from '../context/RootStoreContext'
 import { DateInput } from '../components/DateInput'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { Drawer } from '../containers/Drawer'
 import { HexColorInput, HexColorPicker } from 'react-colorful'
 import { ChangeEventHandler } from 'react'
 import { TextInput } from '../components/TextInput'
 
 export const EventDetailsView = observer(() => {
-  const { store, uploadService } = useRootStore()
+  const { events, uploads, uploadService } = useRootStore()
   const { id } = useParams()
+  const location = useLocation()
   const navigate = useNavigate()
 
   if (!id) {
     return null
   }
 
-  const event = store.events.get(id)
+  const event = events.store.items.get(id)
 
   if (!event) {
     return null
   }
 
-  const all_uploads = Array.from(store.uploads.values())
-  const uploads = all_uploads.filter((upload) => upload.event_id === event.id)
+  const all_uploads = Array.from(uploads.store.items.values())
+  const event_uploads = all_uploads.filter(
+    (upload) => upload.event_id === event.id
+  )
 
   const changeTentative = (checked: boolean) => {
     event.setTentative(checked)
@@ -47,7 +50,10 @@ export const EventDetailsView = observer(() => {
   }
 
   const onClickClose = () => {
-    navigate('/')
+    navigate({
+      pathname: '/calendar',
+      search: location.search,
+    })
   }
 
   const onAddFiles: ChangeEventHandler<HTMLInputElement> = (e) => {
@@ -153,7 +159,7 @@ export const EventDetailsView = observer(() => {
       </div>
       <div className="mb-3">
         <ul>
-          {uploads.map((upload) => (
+          {event_uploads.map((upload) => (
             <li className="my-3" key={upload.id}>
               {upload.read_link?.url ? (
                 <a target="_blank" href={upload.read_link?.url}>

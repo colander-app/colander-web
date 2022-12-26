@@ -24,18 +24,6 @@ export const RootStoreModel = types
     uploads: types.map(UploadModel),
     projects: types.map(ProjectModel),
   })
-  .views((self) => ({
-    getResources(ids: string[]) {
-      return ids
-        .map((id) => self.resources.get(id))
-        .filter(Boolean) as Instance<typeof ResourceModel>[]
-    },
-    getEvents(ids: string[]) {
-      return ids.map((id) => self.events.get(id)).filter(Boolean) as Instance<
-        typeof EventModel
-      >[]
-    },
-  }))
   .actions((self) => {
     return {
       set(items: Array<AllModels>) {
@@ -64,12 +52,26 @@ export const RootStoreModel = types
       createUpload(
         uploadInput: Omit<
           SnapshotOut<typeof UploadModel>,
-          'updated_at' | 'upload_id' | 'parts' | 'expire_at'
+          'updated_at' | 'upload_id' | 'parts' | 'expire_at' | '__type'
         >
       ) {
         self.uploads.put({
+          __type: 'upload',
           updated_at: new Date().toISOString(),
           ...uploadInput,
+        })
+      },
+      createResource(
+        input: Omit<
+          SnapshotOut<typeof ResourceModel>,
+          'updated_at' | 'id' | '__type'
+        >
+      ) {
+        self.resources.put({
+          __type: 'resource',
+          updated_at: new Date().toISOString(),
+          id: uuidv4(),
+          ...input,
         })
       },
       createEvent(resource_id: string, label: string, start: Date, end: Date) {
@@ -79,6 +81,7 @@ export const RootStoreModel = types
           return
         }
         self.events.put({
+          __type: 'event',
           id: uuidv4(),
           updated_at: new Date().toISOString(),
           start_date: start.toISOString(),

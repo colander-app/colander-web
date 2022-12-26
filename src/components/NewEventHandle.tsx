@@ -34,6 +34,8 @@ export const NewEventHandle = ({ date, width, onCreate }: Props) => {
   const onStop: DraggableEventHandler = () => {
     const newEnd = moment(date)
       .add(numOfDays - 1, 'days')
+      .startOf('day')
+      .utc()
       .toDate()
     onCreate(date, newEnd)
     setDragging(false)

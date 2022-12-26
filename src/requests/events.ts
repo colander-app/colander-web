@@ -1,4 +1,4 @@
-import { QueryEventWindow } from '../services/live-model/query-interfaces'
+import { QueryEventWindow } from '../services/query-interfaces'
 
 export const subscribeToEventRange = (query: QueryEventWindow) => ({
   action: 'subscribeToEventRange',

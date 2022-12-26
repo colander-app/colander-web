@@ -1,7 +1,7 @@
 import { Instance, types } from 'mobx-state-tree'
 
 export const EventModel = types
-  .model({
+  .model('Event', {
     __type: types.optional(types.literal('event'), 'event'),
     id: types.identifier,
     resource_id: types.string,

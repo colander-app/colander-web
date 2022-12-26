@@ -1,10 +1,13 @@
 import { observer } from 'mobx-react-lite'
 import { TableView } from '../containers/TableView'
 import { useRootStore } from '../context/RootStoreContext'
-import Fuse from 'fuse.js'
 
 export const ProjectsView = observer(() => {
-  const { store } = useRootStore()
+  const { projects } = useRootStore()
+  const onClickAdd = () => {
+    // show a modal with a new resource
+    alert('TODO :)')
+  }
   return (
     <TableView
       columns={{
@@ -15,8 +18,10 @@ export const ProjectsView = observer(() => {
       keyProp="id"
       searchPlaceholder="Search Projects"
       searchKeys={['name']}
-      rows={Array.from(store.projects.values())}
+      rows={Array.from(projects.store.items.values())}
       zeroStateNode="No Projects"
+      addBtnText="Add a Project"
+      onAddBtnClick={onClickAdd}
     />
   )
 })

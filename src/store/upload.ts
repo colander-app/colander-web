@@ -1,6 +1,6 @@
 import { Instance, types } from 'mobx-state-tree'
 
-export const UploadPart = types.model({
+export const UploadPart = types.model('UploadPart', {
   uploaded: types.boolean,
   start_byte: types.number,
   end_byte: types.number,
@@ -12,7 +12,7 @@ export const UploadPart = types.model({
 export type IUploadPart = Instance<typeof UploadPart>
 
 export const UploadModel = types
-  .model({
+  .model('Upload', {
     __type: types.optional(types.literal('upload'), 'upload'),
     id: types.identifier,
     upload_id: types.maybe(types.string),

@@ -3,19 +3,23 @@ import { TableView } from '../containers/TableView'
 import { useRootStore } from '../context/RootStoreContext'
 
 export const ResourcesView = observer(() => {
-  const { store } = useRootStore()
+  const { resources } = useRootStore()
+  const onClickAdd = () => {
+    // show a modal with a new resource
+    alert('TODO :)')
+  }
   return (
     <TableView
       columns={{
         name: 'Name',
-        // created_on: 'Created On',
-        // created_by: 'Created By',
       }}
       keyProp="id"
       searchPlaceholder="Search Resources"
       searchKeys={['name']}
-      rows={Array.from(store.resources.values())}
+      rows={Array.from(resources.store.items.values())}
       zeroStateNode="No Resources"
+      addBtnText="Add a Resource"
+      onAddBtnClick={onClickAdd}
     />
   )
 })

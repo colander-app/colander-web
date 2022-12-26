@@ -1,7 +1,12 @@
 import { observer } from 'mobx-react-lite'
 import moment from 'moment'
-import { useEffect, useState } from 'react'
-import { Outlet, useNavigate } from 'react-router-dom'
+import { useEffect, useLayoutEffect, useState } from 'react'
+import {
+  Outlet,
+  useLocation,
+  useNavigate,
+  useSearchParams,
+} from 'react-router-dom'
 import { ResourceCalendar } from '../containers/ResourceCalendar'
 import { useRootStore } from '../context/RootStoreContext'
 import { useWindowEvent } from '../hooks/useWindowEvent'
@@ -9,7 +14,9 @@ import { IEventModel } from '../store/event'
 import { IResourceModel } from '../store/resource'
 import ChevronLeftIcon from '@heroicons/react/24/solid/ChevronLeftIcon'
 import ChevronRightIcon from '@heroicons/react/24/solid/ChevronRightIcon'
-import { QueryEventWindow } from '../services/live-model/query-interfaces'
+import { QueryEventWindow } from '../services/query-interfaces'
+import { v4 as uuidv4 } from 'uuid'
+import { useSearchParamsState } from '../hooks/useSearchParamsState'
 
 const makeQueryEventWindow = (
   resourceIds: string[],
@@ -31,7 +38,7 @@ const useEventsAsCalendarRowData = (
   start: Date,
   end: Date
 ): CalendarRow[] => {
-  const { store, subscribe } = useRootStore()
+  const { resources, events, subscribe } = useRootStore()
 
   useEffect(() => {
     const unsubscribe = subscribe(makeQueryEventWindow(resourceIds, start, end))
@@ -41,37 +48,43 @@ const useEventsAsCalendarRowData = (
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [start.toString(), end.toString(), resourceIds.join()])
 
-  const storeEvents = Array.from(store.events.values())
+  const storeEvents = Array.from(events.store.items.values())
   return resourceIds.map((id) => ({
-    resource: store.resources.get(id) as IResourceModel,
+    resource: resources.store.items.get(id) as IResourceModel,
     events: storeEvents.filter((event) => event.resource_id === id),
   }))
 }
 
+const getTodayISO = () =>
+  moment().startOf('month').startOf('day').format('YYYY-MM-DD')
+
 export const ResourceCalendarView = observer(() => {
-  const { store } = useRootStore()
+  const { events } = useRootStore()
   const navigate = useNavigate()
+  const location = useLocation()
 
   const resourceIds = ['r1', 'r2', 'r3', 'r4']
-  const [startDateISO, setStartDateISO] = useState(
-    moment().startOf('month').startOf('day').toISOString()
+
+  const [viewStartDateISO, setViewStartDateISO] = useSearchParamsState(
+    'start',
+    getTodayISO()
   )
-  const startDate = new Date(startDateISO)
+  const startDate = moment(viewStartDateISO).startOf('day').toDate()
 
   // Current MAGIC VALUES
   const cellWidth = 50
   const bubbleHeight = 50
   const bubbleMargin = 2
 
-  const numOfDaysInWindow = useWindowEvent(
-    'resize',
-    ({ innerWidth }) => Math.ceil(innerWidth / cellWidth),
-    [cellWidth]
-  )
-  const numOfDays = moment(startDate)
-    .add(numOfDaysInWindow)
-    .endOf('month')
-    .diff(startDate, 'days')
+  // const numOfDaysInWindow = useWindowEvent(
+  //   'resize',
+  //   ({ innerWidth }) => Math.ceil(innerWidth / cellWidth),
+  //   [cellWidth]
+  // )
+  const numOfDays = moment(startDate).daysInMonth()
+  // .add(numOfDaysInWindow)
+  // .endOf('month')
+  // .diff(startDate, 'days')
 
   const calendarRows = useEventsAsCalendarRowData(
     resourceIds,
@@ -85,27 +98,47 @@ export const ResourceCalendarView = observer(() => {
 
   const onAddEvent = (resource: IResourceModel, start: Date, end: Date) => {
     const label = 'New Event'
-    store.createEvent(resource.id, label, start, end)
+    events.store.set([
+      {
+        __type: 'event',
+        id: uuidv4(),
+        updated_at: new Date().toISOString(),
+        start_date: start.toISOString(),
+        end_date: end.toISOString(),
+        resource_id: resource.id,
+        tentative: false,
+        color: '#CCC',
+        label,
+      },
+    ])
   }
 
   const onPrevious = () => {
-    setStartDateISO(
-      moment(startDateISO).subtract(1, 'month').startOf('month').toISOString()
+    setViewStartDateISO(
+      moment(viewStartDateISO)
+        .subtract(1, 'month')
+        .startOf('month')
+        .format('YYYY-MM-DD')
     )
   }
 
   const onNext = () => {
-    setStartDateISO(
-      moment(startDateISO).add(1, 'month').startOf('month').toISOString()
+    setViewStartDateISO(
+      moment(viewStartDateISO)
+        .add(1, 'month')
+        .startOf('month')
+        .format('YYYY-MM-DD')
     )
   }
 
   const onToday = () => {
-    setStartDateISO(moment().startOf('month').startOf('day').toISOString())
+    setViewStartDateISO(
+      moment().startOf('month').startOf('day').format('YYYY-MM-DD')
+    )
   }
 
   const onSelectEvent = (id: string) => {
-    navigate(`event/${id}`)
+    navigate({ pathname: `event/${id}`, search: location.search })
   }
 
   return (

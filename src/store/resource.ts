@@ -1,6 +1,6 @@
 import { Instance, types } from 'mobx-state-tree'
 
-export const ResourceModel = types.model({
+export const ResourceModel = types.model('Resource', {
   __type: types.optional(types.literal('resource'), 'resource'),
   id: types.identifier,
   name: types.string,
