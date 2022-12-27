@@ -82,12 +82,12 @@ export const makeRootService = () => {
       uploads.store.set([
         {
           __type: 'upload',
-          upload_id: uuidv4(),
           updated_at: new Date().toISOString(),
           status: 'uploading',
           uploader: 'user1',
           read_link: undefined,
           expire_at: undefined,
+          upload_id: undefined,
           parts: undefined,
           id,
           resource_id,

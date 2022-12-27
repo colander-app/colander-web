@@ -59,11 +59,13 @@ const getTodayISO = () =>
   moment().startOf('month').startOf('day').format('YYYY-MM-DD')
 
 export const ResourceCalendarView = observer(() => {
-  const { events } = useRootStore()
+  const { events, resources } = useRootStore()
   const navigate = useNavigate()
   const location = useLocation()
 
-  const resourceIds = ['r1', 'r2', 'r3', 'r4']
+  const resourceIds = Array.from(resources.store.items.values()).map(
+    (r) => r.id
+  )
 
   const [viewStartDateISO, setViewStartDateISO] = useSearchParamsState(
     'start',
