@@ -55,6 +55,7 @@ interface TableViewProps<T extends Record<string, any>> {
   pageSize?: number
   zeroStateNode?: ReactNode
   addBtnText?: string
+  onClickRow?: (row: T) => void
   onAddBtnClick?: () => void
 }
 export const TableView = <T extends Record<string, any>>({
@@ -64,6 +65,7 @@ export const TableView = <T extends Record<string, any>>({
   keyProp,
   addBtnText,
   onAddBtnClick,
+  onClickRow,
   searchPlaceholder = '',
   pageSize = 10,
   zeroStateNode = 'No Data to Display',
@@ -147,7 +149,11 @@ export const TableView = <T extends Record<string, any>>({
           </thead>
           <tbody>
             {viewItems.map((row) => (
-              <tr className="border-b" key={row[keyProp]}>
+              <tr
+                className="border-b"
+                key={row[keyProp]}
+                onClick={() => onClickRow?.(row)}
+              >
                 {Object.keys(columns).map((key) => (
                   <td
                     key={key}

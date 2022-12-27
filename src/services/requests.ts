@@ -1,4 +1,4 @@
-import { QueryEventWindow } from '../services/query-interfaces'
+import { QueryEventWindow, SubscribeToOrg } from './query-interfaces'
 
 export const subscribeToEventRange = (query: QueryEventWindow) => ({
   action: 'subscribeToEventRange',
@@ -15,5 +15,12 @@ export const unsubscribeFromEventRange = (
   action: 'unsubscribeFromEventRange',
   data: {
     resource_ids,
+  },
+})
+
+export const subscribeToOrg = (query: SubscribeToOrg) => ({
+  action: 'subscribeToOrganization',
+  query: {
+    organization_id: query.organization_id,
   },
 })

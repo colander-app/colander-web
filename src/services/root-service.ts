@@ -9,8 +9,9 @@ import config from '../config.json'
 import { makeWebsocketService } from './websocket'
 import {
   subscribeToEventRange,
+  subscribeToOrg,
   unsubscribeFromEventRange,
-} from '../requests/events'
+} from './requests'
 import { UploadModel } from '../store/upload'
 import { makeUploadService, UploadService } from './upload-service'
 import { ProjectModel } from '../store/project'
@@ -67,98 +68,13 @@ export const makeRootService = () => {
     putItem: (data) => ws.sendMessage({ action: 'putResource', data }),
     subscribeUpstream: ws.subscribe,
   })
+  // TODO: temp. remove when no longer need seeded resources (eg. resource crud'ing is functional)
   resources.store.set(seedResources)
 
   const uploads = makeModelService(UploadModel, {
     putItem: (data) => ws.sendMessage({ action: 'putUpload', data }),
     subscribeUpstream: ws.subscribe,
   })
-
-  // const queueProjectUpdates = makeUpdaterQueue<
-  //   SnapshotOut<typeof ProjectModel>
-  // >({
-  //   throttleRateMs: API_THROTTLE_RATE_MS,
-  //   update: async (model) => {
-  //     sendMessage({ action: 'putProject', data: model })
-  //   },
-  //   onUpdateFailed(model) {
-  //     const serverEntity = serverStore.projects.get(model.id)
-  //     if (serverEntity) {
-  //       store.set([serverEntity])
-  //     }
-  //   },
-  // })
-
-  // const queueResourceUpdates = makeUpdaterQueue<
-  //   SnapshotOut<typeof ResourceModel>
-  // >({
-  //   throttleRateMs: API_THROTTLE_RATE_MS,
-  //   update: async (model) => {
-  //     sendMessage({ action: 'putResource', data: model })
-  //   },
-  //   onUpdateFailed(model) {
-  //     const serverEntity = serverStore.resources.get(model.id)
-  //     if (serverEntity) {
-  //       store.set([serverEntity])
-  //     }
-  //   },
-  // })
-
-  // const queueEventUpdates = makeUpdaterQueue<SnapshotOut<typeof EventModel>>({
-  //   throttleRateMs: API_THROTTLE_RATE_MS,
-  //   async update(model) {
-  //     sendMessage({ action: 'putEvent', data: model })
-  //   },
-  //   onUpdateFailed(model) {
-  //     const serverEntity = serverStore.events.get(model.id)
-  //     if (serverEntity) {
-  //       store.set([serverEntity])
-  //     }
-  //   },
-  // })
-
-  // const queueUploadUpdates = makeUpdaterQueue<SnapshotOut<typeof UploadModel>>({
-  //   throttleRateMs: API_THROTTLE_RATE_MS,
-  //   async update(model) {
-  //     sendMessage({ action: 'putUpload', data: model })
-  //   },
-  //   onUpdateFailed(model) {
-  //     const serverEntity = serverStore.uploads.get(model.id)
-  //     if (serverEntity) {
-  //       store.set([serverEntity])
-  //     }
-  //   },
-  // })
-
-  // autorun(() => {
-  //   const projects = Object.values(getSnapshot(store.projects))
-  //   const modifiedProjects = projects.filter(
-  //     ({ id, updated_at }) =>
-  //       new Date(updated_at) >
-  //       new Date(serverStore.projects.get(id)?.updated_at ?? 0)
-  //   )
-  //   queueProjectUpdates(modifiedProjects)
-  // })
-
-  // autorun(() => {
-  //   const resources = Object.values(getSnapshot(store.resources))
-  //   const modifiedResources = resources.filter(
-  //     ({ id, updated_at }) =>
-  //       new Date(updated_at) >
-  //       new Date(serverStore.resources.get(id)?.updated_at ?? 0)
-  //   )
-  //   queueResourceUpdates(modifiedResources)
-  // })
-
-  // autorun(() => {
-  //   const events = Object.values(getSnapshot(store.events))
-  //   const modifiedEvents = events.filter(
-  //     ({ id, updated_at }) =>
-  //       new Date(updated_at) >
-  //       new Date(serverStore.events.get(id)?.updated_at ?? 0)
-  //   )
-  //   queueEventUpdates(modifiedEvents)
-  // })
 
   const uploadService = makeUploadService({
     onNewUpload(id, filename, size, content_type, resource_id, event_id) {
@@ -169,7 +85,7 @@ export const makeRootService = () => {
           upload_id: uuidv4(),
           updated_at: new Date().toISOString(),
           status: 'uploading',
-          uploader: 'me',
+          uploader: 'user1',
           read_link: undefined,
           expire_at: undefined,
           parts: undefined,
@@ -211,6 +127,12 @@ export const makeRootService = () => {
       ws.sendMessage(subscribeToEventRange(query))
       return () => {
         ws.sendMessage(unsubscribeFromEventRange(query.resourceIds))
+      }
+    }
+    if (query.type === 'subscribeToOrganization') {
+      ws.sendMessage(subscribeToOrg(query))
+      return () => {
+        ws.sendMessage({ action: 'unsubscribeFromOrganization', query })
       }
     }
     return function emptyUnsubscribe() {}

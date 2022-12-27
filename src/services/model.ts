@@ -56,11 +56,11 @@ export const makeModelService = <T extends BaseModelType>(
 
   // Subscribe to upstream data
   subscribeUpstream((items) => {
-    const filtered = items.filter((item) => model.is(item))
-    if (filtered.length > 0) {
-      console.log('got items upstream!', model.name, filtered)
-      serverStore.set(filtered as SnapshotIn<typeof model>[])
-      store.set(filtered as SnapshotIn<typeof model>[])
+    const upstreamItems = items.filter((item) => model.is(item))
+    if (upstreamItems.length > 0) {
+      console.log('got items upstream!', model.name, upstreamItems)
+      serverStore.set(upstreamItems as SnapshotIn<typeof model>[])
+      store.set(upstreamItems as SnapshotIn<typeof model>[])
     }
   })
 
@@ -78,16 +78,18 @@ export const makeModelService = <T extends BaseModelType>(
 
   // Observe changes to the store and queue updates to new items
   autorun(() => {
-    const items = Object.values(getSnapshot(store.items)) as SnapshotOut<
+    const localItems = Object.values(getSnapshot(store.items)) as SnapshotOut<
       typeof model
     >[]
-    const modifiedItems = items.filter(
+    subscribers.forEach((subscriber) => subscriber(localItems))
+    const localModifiedItems = localItems.filter(
       ({ id, updated_at }) =>
         new Date(updated_at) >
         new Date(serverStore.items.get(id)?.updated_at ?? 0)
     )
-    subscribers.forEach((subscriber) => subscriber(modifiedItems))
-    queueUpdates(modifiedItems)
+    if (localModifiedItems.length > 0) {
+      queueUpdates(localModifiedItems)
+    }
   })
 
   return { store, subscribe }

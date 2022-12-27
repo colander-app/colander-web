@@ -5,4 +5,9 @@ export interface QueryEventWindow {
   viewEnd: Date
 }
 
-export type Queries = QueryEventWindow
+export interface SubscribeToOrg {
+  type: 'subscribeToOrganization'
+  organization_id: string
+}
+
+export type Queries = QueryEventWindow | SubscribeToOrg
