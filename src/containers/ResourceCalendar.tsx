@@ -35,16 +35,16 @@ interface Props {
 const isLastElement = (arr: Array<unknown>, i: number) => i === arr.length - 1
 
 const makeGetHeight =
-  (sectionHeight: number, marginHeight: number) =>
-  (sectionCount: number, isLabel?: boolean) => {
+  (bubbleHeight: number, marginHeight: number) =>
+  (bubbleCount: number, isLabel?: boolean) => {
     // Margins between all events including above and below first and last
-    const marginCount = sectionCount + 1
+    const marginCount = bubbleCount + 1
     if (isLabel) {
       // This count includes at least 2 empty sections (empty row + new event drag row)
-      const sectionCountMin = Math.max(1, sectionCount) + 1
-      return sectionCountMin * sectionHeight + marginCount * marginHeight
+      const sectionCountMin = Math.max(1, bubbleCount) + 1
+      return sectionCountMin * bubbleHeight + marginCount * marginHeight
     }
-    return sectionCount * sectionHeight + marginCount * marginHeight
+    return bubbleCount * bubbleHeight + marginCount * marginHeight
   }
 
 const weekdayLabels = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su']
@@ -141,7 +141,10 @@ export const ResourceCalendar: React.FC<Props & PropsWithChildren> = observer(
                         )}
                       </DateList>
                     </CalendarRow>
-                    <CalendarRow bottomBorder={hasBottomBorder}>
+                    <CalendarRow
+                      bottomBorder={hasBottomBorder}
+                      height={getHeight(0)}
+                    >
                       <DateList startDate={startDate} count={numOfDays}>
                         {({ date, isWeekend }) => (
                           <DateBlock width={cellWidth} isWeekend={isWeekend}>

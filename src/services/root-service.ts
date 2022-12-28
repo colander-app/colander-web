@@ -141,6 +141,7 @@ export const makeRootService = () => {
   return {
     uploadService,
     subscribe,
+    subscribeStatus: ws.subscribeStatus,
     projects,
     events,
     resources,

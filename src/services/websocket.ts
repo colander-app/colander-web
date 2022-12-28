@@ -2,20 +2,27 @@ interface Dependencies {
   endpoint: string
 }
 
-type Subscriber = (data: any) => void
-
 const MAGIC_RECONNECT_DELAY = 2000
 
+const makeSubscribers = <T>() => {
+  const subscribers = new Set<(msg: T) => void>()
+  return {
+    subscribe(fn: (msg: T) => void) {
+      subscribers.add(fn)
+      return () => subscribers.delete(fn)
+    },
+    notify(msg: T) {
+      subscribers.forEach((subscriber) => subscriber(msg))
+    },
+  }
+}
+
 export const makeWebsocketService = ({ endpoint }: Dependencies) => {
-  const subscribers = new Set<Subscriber>()
+  const messageSubscribers = makeSubscribers<any>()
+  const statusSubscribers = makeSubscribers<boolean>()
   let ws: WebSocket | undefined
   let messageQueue: string[] = []
   let isOpened = false
-
-  const subscribe = (fn: Subscriber) => {
-    subscribers.add(fn)
-    return () => subscribers.delete(fn)
-  }
 
   const sendMessage = (data: string | Record<string, any>) => {
     const msg = typeof data === 'string' ? data : JSON.stringify(data)
@@ -31,7 +38,7 @@ export const makeWebsocketService = ({ endpoint }: Dependencies) => {
   function onMessageEvent(event: MessageEvent<string>) {
     try {
       const msg = JSON.parse(event.data)
-      subscribers.forEach((subscriber) => subscriber(msg))
+      messageSubscribers.notify(msg)
     } catch (err: any) {
       console.log('WS (FORMAT_ERR)>', err?.message, event.data)
     }
@@ -39,6 +46,7 @@ export const makeWebsocketService = ({ endpoint }: Dependencies) => {
 
   function onOpenEvent() {
     console.log('WS Connected.')
+    statusSubscribers.notify(true)
     isOpened = true
     messageQueue.forEach((msg) => sendMessage(msg))
     messageQueue = []
@@ -46,6 +54,7 @@ export const makeWebsocketService = ({ endpoint }: Dependencies) => {
 
   function onCloseEvent() {
     console.log(`WS Disconnected. Reconnecting in ${MAGIC_RECONNECT_DELAY}ms`)
+    statusSubscribers.notify(false)
     isOpened = false
     ws = undefined
   }
@@ -64,6 +73,7 @@ export const makeWebsocketService = ({ endpoint }: Dependencies) => {
 
   return {
     sendMessage,
-    subscribe,
+    subscribe: messageSubscribers.subscribe,
+    subscribeStatus: statusSubscribers.subscribe,
   }
 }
