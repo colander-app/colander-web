@@ -32,20 +32,37 @@ interface Props {
   bubbleMargin: number
 }
 
-const isLastElement = (arr: Array<unknown>, i: number) => i === arr.length - 1
+const rowHasBottomBorder = (rowIndex: number, rowCount: number) =>
+  rowIndex === rowCount - 1
 
-const makeGetHeight =
-  (bubbleHeight: number, marginHeight: number) =>
-  (bubbleCount: number, isLabel?: boolean) => {
-    // Margins between all events including above and below first and last
-    const marginCount = bubbleCount + 1
-    if (isLabel) {
-      // This count includes at least 2 empty sections (empty row + new event drag row)
-      const sectionCountMin = Math.max(1, bubbleCount) + 1
-      return sectionCountMin * bubbleHeight + marginCount * marginHeight
-    }
-    return bubbleCount * bubbleHeight + marginCount * marginHeight
-  }
+const getNewEventRowHeight = (bubbleHeight: number, marginHeight: number) => {
+  return bubbleHeight + marginHeight * 1
+}
+
+const getEventRowHeight = (
+  bubbleHeight: number,
+  marginHeight: number,
+  bubbleCount: number,
+  minEventRowBubbles = 1
+) => {
+  const minMarginCount = 1
+
+  const bubbleCountTotal = Math.max(minEventRowBubbles, bubbleCount)
+  const marginCountTotal = minMarginCount + bubbleCountTotal
+
+  return bubbleHeight * bubbleCountTotal + marginHeight * marginCountTotal
+}
+
+const getLabelRowHeight = (
+  bubbleHeight: number,
+  marginHeight: number,
+  bubbleCount: number
+) => {
+  return (
+    getEventRowHeight(bubbleHeight, marginHeight, bubbleCount) +
+    getNewEventRowHeight(bubbleHeight, marginHeight)
+  )
+}
 
 const weekdayLabels = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su']
 
@@ -62,7 +79,6 @@ export const ResourceCalendar: React.FC<Props & PropsWithChildren> = observer(
     bubbleMargin,
     children,
   }) => {
-    const getHeight = makeGetHeight(bubbleHeight, bubbleMargin)
     const endDate = moment(startDate).add(numOfDays, 'days').toDate()
 
     const resourceColumn = (
@@ -74,13 +90,17 @@ export const ResourceCalendar: React.FC<Props & PropsWithChildren> = observer(
           const buckets = getEventOffsetBuckets(
             eventsInRange(events, startDate, endDate)
           )
-          const hasBottomBorder = isLastElement(data, i)
+          const hasBottomBorder = rowHasBottomBorder(i, data.length)
           return (
             <React.Fragment key={resource.id}>
               <CalendarRow
                 topBorder
                 bottomBorder={hasBottomBorder}
-                height={getHeight(buckets.length, true)}
+                height={getLabelRowHeight(
+                  bubbleHeight,
+                  bubbleMargin,
+                  buckets.length
+                )}
               >
                 <ResourceLabelBlock>{resource.name}</ResourceLabelBlock>
               </CalendarRow>
@@ -114,10 +134,17 @@ export const ResourceCalendar: React.FC<Props & PropsWithChildren> = observer(
                   eventsInRange(events, startDate, endDate)
                 )
                 const eventOffsets = getEventOffsetsById(buckets)
-                const hasBottomBorder = isLastElement(data, i)
+                const hasBottomBorder = rowHasBottomBorder(i, data.length)
                 return (
                   <Fragment key={resource.id}>
-                    <CalendarRow topBorder height={getHeight(buckets.length)}>
+                    <CalendarRow
+                      topBorder
+                      height={getEventRowHeight(
+                        bubbleHeight,
+                        bubbleMargin,
+                        buckets.length
+                      )}
+                    >
                       <DateList startDate={startDate} count={numOfDays}>
                         {({ date, isWeekend }) => (
                           <DateBlock width={cellWidth} isWeekend={isWeekend}>
@@ -130,7 +157,12 @@ export const ResourceCalendar: React.FC<Props & PropsWithChildren> = observer(
                                   viewEnd={endDate}
                                   event={event}
                                   width={cellWidth}
-                                  offset={getHeight(eventOffsets[event.id])}
+                                  offset={getEventRowHeight(
+                                    bubbleHeight,
+                                    bubbleMargin,
+                                    eventOffsets[event.id],
+                                    0
+                                  )}
                                   onClick={() => onSelectEvent(event.id)}
                                   onMove={(start, end) =>
                                     onMoveEvent(event, start, end)
@@ -143,7 +175,7 @@ export const ResourceCalendar: React.FC<Props & PropsWithChildren> = observer(
                     </CalendarRow>
                     <CalendarRow
                       bottomBorder={hasBottomBorder}
-                      height={getHeight(0)}
+                      height={getNewEventRowHeight(bubbleHeight, bubbleMargin)}
                     >
                       <DateList startDate={startDate} count={numOfDays}>
                         {({ date, isWeekend }) => (
