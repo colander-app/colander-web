@@ -145,25 +145,28 @@ export const ResourceCalendarView = observer(() => {
 
   return (
     <div className="mx-0">
-      <div className="flex px-3 py-1 space-x-4 align-middle content-center">
+      <div className="flex px-3 py-1 space-x-2 align-middle content-center items-stretch w-full sm:w-1/4 md:w-1/2 lg:w-auto">
         <button
-          className="text-md text-gray-700 hover:text-gray-500"
+          className="flex-1 lg:flex-none px-2 py-1 text-md text-gray-700 border rounded border-slate-300 hover:bg-slate-50"
           onClick={onToday}
         >
           Today
         </button>
         <button
-          className="h-8 inline-flex text-gray-700 hover:text-gray-500"
+          className="flex-1 lg:flex-none px-2 text-gray-700 border rounded border-slate-300 hover:bg-slate-50"
           onClick={onPrevious}
         >
-          <ChevronLeftIcon className="h-full" />
+          <ChevronLeftIcon className="w-full max-h-6" />
         </button>
         <button
-          className="h-8 inline-flex text-gray-700 hover:text-gray-500"
+          className="flex-1 lg:flex-none px-2 text-gray-700 border rounded border-slate-300 hover:bg-slate-50"
           onClick={onNext}
         >
-          <ChevronRightIcon className="h-full" />
+          <ChevronRightIcon className="w-full max-h-6" />
         </button>
+        {/* <select className="flex-grow" placeholder="Color by Project">
+          <option></option>
+        </select> */}
       </div>
       <ResourceCalendar
         data={calendarRows}
