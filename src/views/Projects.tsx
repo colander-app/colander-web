@@ -3,6 +3,7 @@ import { Outlet, useNavigate } from 'react-router-dom'
 import { v4 as uuidv4 } from 'uuid'
 import { TableView } from '../containers/TableView'
 import { useRootStore } from '../context/RootStoreContext'
+import { IProjectModel } from '../store/project'
 
 export const ProjectsView = observer(() => {
   const { projects } = useRootStore()
@@ -22,6 +23,10 @@ export const ProjectsView = observer(() => {
     navigate({ pathname: id, search: location.search })
   }
 
+  const onClickRow = (project: IProjectModel) => {
+    navigate({ pathname: project.id, search: location.search })
+  }
+
   return (
     <>
       <TableView
@@ -37,6 +42,7 @@ export const ProjectsView = observer(() => {
         zeroStateNode="No Projects"
         addBtnText="Add a Project"
         onAddBtnClick={onClickAdd}
+        onClickRow={onClickRow}
       />
       <Outlet />
     </>

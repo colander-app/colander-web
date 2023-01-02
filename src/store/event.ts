@@ -5,6 +5,7 @@ export const EventModel = types
     __type: types.optional(types.literal('event'), 'event'),
     id: types.identifier,
     resource_id: types.string,
+    project_id: types.maybe(types.string),
     start_date: types.string,
     end_date: types.string,
     label: types.string,

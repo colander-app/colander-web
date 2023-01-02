@@ -35,7 +35,7 @@ export const ResourceDetailsView = observer(() => {
           htmlFor="resourceName"
           className="block text-gray-700 text-sm font-bold mb-2"
         >
-          Label
+          Name
         </label>
         <TextInput
           id="resourceName"

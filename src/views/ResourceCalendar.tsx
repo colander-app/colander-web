@@ -74,7 +74,7 @@ export const ResourceCalendarView = observer(() => {
   const startDate = moment(viewStartDateISO).startOf('day').toDate()
 
   // Current MAGIC VALUES
-  const cellWidth = 50
+  const cellWidth = 70
   const bubbleHeight = 50
   const bubbleMargin = 2
 

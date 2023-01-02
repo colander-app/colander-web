@@ -9,6 +9,7 @@ export const ResourcesView = observer(() => {
   const { resources } = useRootStore()
   const navigate = useNavigate()
   const location = useLocation()
+
   const onClickAdd = () => {
     const id = uuidv4()
     resources.store.set([
@@ -22,9 +23,11 @@ export const ResourcesView = observer(() => {
     ])
     navigate({ pathname: id, search: location.search })
   }
+
   const onClickRow = (resource: IResourceModel) => {
     navigate({ pathname: resource.id, search: location.search })
   }
+
   return (
     <>
       <TableView

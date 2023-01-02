@@ -1,55 +1,17 @@
-import { autorun } from 'mobx'
-import { SnapshotOut, getSnapshot, SnapshotIn } from 'mobx-state-tree'
 import { EventModel } from '../store/event'
 import { ResourceModel } from '../store/resource'
-import { RootStoreModel, IRootStoreModel } from '../store/root'
-import { makeUpdaterQueue } from './updater-queue'
+import { makeWebsocketService } from './websocket'
+import { UploadModel } from '../store/upload'
+import { makeUploadService } from './upload-service'
+import { ProjectModel } from '../store/project'
+import { makeModelService } from './model'
 import { Queries } from './query-interfaces'
 import config from '../config.json'
-import { makeWebsocketService } from './websocket'
 import {
   subscribeToEventRange,
   subscribeToOrg,
   unsubscribeFromEventRange,
 } from './requests'
-import { UploadModel } from '../store/upload'
-import { makeUploadService, UploadService } from './upload-service'
-import { ProjectModel } from '../store/project'
-import { makeModelService } from './model'
-import { v4 as uuidv4 } from 'uuid'
-
-const API_THROTTLE_RATE_MS = 500
-
-const seedResources: SnapshotIn<typeof ResourceModel>[] = [
-  {
-    __type: 'resource',
-    id: 'r1',
-    name: 'Suzan Sharp',
-    organization_id: 'org1',
-    updated_at: new Date(1667309346394).toISOString(),
-  },
-  {
-    __type: 'resource',
-    id: 'r2',
-    name: 'Jonny Edwards',
-    organization_id: 'org1',
-    updated_at: new Date(1667309350406).toISOString(),
-  },
-  {
-    __type: 'resource',
-    id: 'r3',
-    name: 'Georgina Franks',
-    organization_id: 'org1',
-    updated_at: new Date(1667309350406).toISOString(),
-  },
-  {
-    __type: 'resource',
-    id: 'r4',
-    name: 'Tal Francino',
-    organization_id: 'org1',
-    updated_at: new Date(1667309350406).toISOString(),
-  },
-]
 
 export const makeRootService = () => {
   const ws = makeWebsocketService({ endpoint: config.wsEndpoint })
@@ -68,8 +30,6 @@ export const makeRootService = () => {
     putItem: (data) => ws.sendMessage({ action: 'putResource', data }),
     subscribeUpstream: ws.subscribe,
   })
-  // TODO: temp. remove when no longer need seeded resources (eg. resource crud'ing is functional)
-  resources.store.set(seedResources)
 
   const uploads = makeModelService(UploadModel, {
     putItem: (data) => ws.sendMessage({ action: 'putUpload', data }),
@@ -107,20 +67,6 @@ export const makeRootService = () => {
     },
   })
   uploads.subscribe((items) => uploadService.onUploadsModified(items))
-
-  // autorun(() => {
-  //   const uploads = Object.values(getSnapshot(store.uploads))
-  //   const locallyModifiedUploads = uploads.filter(
-  //     ({ id, updated_at }) =>
-  //       new Date(updated_at) >
-  //       new Date(serverStore.uploads.get(id)?.updated_at ?? 0)
-  //   )
-  //   const serverModifiedUploads = uploads.filter(
-  //     (upload) => !locallyModifiedUploads.find((u) => u.id === upload.id)
-  //   )
-  //   uploadService.onUploadsModified(serverModifiedUploads)
-  //   queueUploadUpdates(locallyModifiedUploads)
-  // })
 
   const subscribe = (query: Queries): (() => void) => {
     if (query.type === 'subscribeToEventRange') {
