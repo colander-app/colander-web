@@ -108,6 +108,7 @@ export const ResourceCalendarView = observer(() => {
         start_date: start.toISOString(),
         end_date: end.toISOString(),
         resource_id: resource.id,
+        project_id: undefined,
         tentative: false,
         color: '#CCC',
         label,
