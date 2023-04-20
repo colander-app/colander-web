@@ -1,4 +1,4 @@
 {
-  "wsEndpoint": "wss://ws.dev.colanderapp.io",
-  "wsAuthEndpoint": "wss://auth.dev.colanderapp.io"
+  "wsEndpoint": "wss://ws.dev.colanderapp.io/dev",
+  "wsAuthEndpoint": "wss://auth.dev.colanderapp.io/dev"
 }
