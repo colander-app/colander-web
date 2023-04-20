@@ -4,34 +4,82 @@ import { makeWebsocketService } from './websocket'
 import { UploadModel } from '../store/upload'
 import { makeUploadService } from './upload-service'
 import { ProjectModel } from '../store/project'
-import { makeModelService } from './model'
+import { makeModelStore } from './model-store'
 import { Queries } from './query-interfaces'
 import config from '../config.json'
 import {
+  completeMagicLogin,
+  initMagicLogin,
   subscribeToEventRange,
   subscribeToOrg,
   unsubscribeFromEventRange,
 } from './requests'
+import { TokenModel } from '../store/token'
 
 export const makeRootService = () => {
-  const ws = makeWebsocketService({ endpoint: config.wsEndpoint })
+  const ws = makeWebsocketService({
+    endpoint: config.wsEndpoint,
+  })
 
-  const projects = makeModelService(ProjectModel, {
+  const authWs = makeWebsocketService({
+    endpoint: config.wsAuthEndpoint,
+  })
+
+  authWs.subscribe((msg) => {
+    if (TokenModel.is(msg)) {
+      // use access token to authenticate appWs
+      // store refresh token in localStorage
+    }
+  })
+
+  const loginWithCode = (email: string) => {
+    authWs.sendMessage(initMagicLogin(email))
+  }
+
+  const completeLoginWithCode = (email: string, code: string) => {
+    authWs.sendMessage(completeMagicLogin(email, code))
+  }
+
+  /**
+   * Logic::: auth endpoint used for authenticating user until a token is received.
+   *
+   *  Authentication flow (magic link grant type):
+   *  - > connect to auth websocket
+   *  - > send authenticate request with email
+   *  - < create auth code for email, send code to email
+   *  - > send get token request with email and code
+   *  - < validate code, create access token / refresh token pair, new token family. immediately send to WS
+   *  - > app stores access token in memory and refresh token in localstorage
+   *
+   *  Authentication flow (refresh token grant type):
+   *  - > connect to auth websocket
+   *  - > send get token request with refresh token
+   *  - < validate refresh token, create new access token / refresh token pair in family. immediately send to WS
+   *  - > app stores access token in memory and refresh token in localstorage
+   *
+   *  Authorization flow:
+   *  - > connect to app websocket with access token in querystring
+   *  - < lambda authorizer validates access token, returns valid iam policy to access endpoints
+   *  - > app websocket is now connected and data can flow
+   *
+   */
+
+  const projects = makeModelStore(ProjectModel, {
     putItem: (data) => ws.sendMessage({ action: 'putProject', data }),
     subscribeUpstream: ws.subscribe,
   })
 
-  const events = makeModelService(EventModel, {
+  const events = makeModelStore(EventModel, {
     putItem: (data) => ws.sendMessage({ action: 'putEvent', data }),
     subscribeUpstream: ws.subscribe,
   })
 
-  const resources = makeModelService(ResourceModel, {
+  const resources = makeModelStore(ResourceModel, {
     putItem: (data) => ws.sendMessage({ action: 'putResource', data }),
     subscribeUpstream: ws.subscribe,
   })
 
-  const uploads = makeModelService(UploadModel, {
+  const uploads = makeModelStore(UploadModel, {
     putItem: (data) => ws.sendMessage({ action: 'putUpload', data }),
     subscribeUpstream: ws.subscribe,
   })

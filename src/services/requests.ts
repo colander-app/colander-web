@@ -1,5 +1,20 @@
 import { QueryEventWindow, SubscribeToOrg } from './query-interfaces'
 
+export const initMagicLogin = (email: string) => ({
+  action: 'initMagicLogin',
+  data: {
+    email,
+  },
+})
+
+export const completeMagicLogin = (email: string, code: string) => ({
+  action: 'completeMagicLogin',
+  data: {
+    email,
+    code,
+  },
+})
+
 export const subscribeToEventRange = (query: QueryEventWindow) => ({
   action: 'subscribeToEventRange',
   query: {

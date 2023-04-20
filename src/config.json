@@ -1,3 +1,4 @@
 {
-  "wsEndpoint": "wss://hwpksmxs5b.execute-api.us-east-1.amazonaws.com/dev?Auth=12345"
+  "wsEndpoint": "wss://ws.dev.colanderapp.io",
+  "wsAuthEndpoint": "wss://auth.dev.colanderapp.io"
 }

@@ -12,6 +12,13 @@ import {
 } from 'mobx-state-tree'
 import { makeUpdaterQueue } from './updater-queue'
 
+interface ModelStore<T extends { id: string }> {
+  store: {
+    set: (items: T[]) => void
+    items: {}
+  }
+}
+
 const API_THROTTLE_RATE_MS = 500
 
 interface Dependencies<T> {
@@ -29,7 +36,7 @@ interface BaseModelType
     _NotCustomized
   > {}
 
-export const makeModelService = <T extends BaseModelType>(
+export const makeModelStore = <T extends BaseModelType>(
   model: T,
   { putItem, subscribeUpstream }: Dependencies<T>
 ) => {
