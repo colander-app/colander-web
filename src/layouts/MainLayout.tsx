@@ -7,6 +7,9 @@ import XMarkIcon from '@heroicons/react/24/outline/XMarkIcon'
 import Bars3Icon from '@heroicons/react/24/outline/Bars3Icon'
 import colanderLogo from '../images/colander2.svg'
 import { classNames } from '../util/classNames'
+import { observer } from 'mobx-react-lite'
+import { useRootStore } from '../context/RootStoreContext'
+import { LoginView } from '../views/Login'
 
 const borderColor = 'rgb(211, 211, 211)'
 const primaryTheme = {
@@ -17,10 +20,10 @@ const primaryTheme = {
 }
 
 const user = {
-  name: 'Tom Cook',
-  email: 'tom@example.com',
+  name: 'Fake User',
+  email: 'fuser@colanderapp.io',
   imageUrl:
-    'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+    'https://images.unsplash.com/photo-1511367461989-f85a21fda167?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=256&h=256&q=80',
 }
 const navigation = [
   { name: 'Calendar', href: '/calendar' },
@@ -33,7 +36,14 @@ const userNavigation = [
   { name: 'Sign out', href: '#' },
 ]
 
-export const MainLayout = () => {
+export const MainLayout = observer(() => {
+  const rootStore = useRootStore()
+  const showLogin = rootStore.authStore.loggedIn === false
+
+  if (showLogin) {
+    return <LoginView />
+  }
+
   return (
     <ThemeProvider theme={primaryTheme}>
       <div className="min-h-full">
@@ -227,4 +237,4 @@ export const MainLayout = () => {
       </footer>
     </ThemeProvider>
   )
-}
+})

@@ -7,30 +7,43 @@ import { ProjectModel } from '../store/project'
 import { makeModelStore } from './model-store'
 import { Queries } from './query-interfaces'
 import config from '../config.json'
+import { authStoreModel } from '../store/auth'
 import {
   completeMagicLogin,
   initMagicLogin,
+  refreshToken,
   subscribeToEventRange,
   subscribeToOrg,
   unsubscribeFromEventRange,
 } from './requests'
-import { TokenModel } from '../store/token'
 
 export const makeRootService = () => {
   const ws = makeWebsocketService({
     endpoint: config.wsEndpoint,
+    autoConnect: false,
   })
 
   const authWs = makeWebsocketService({
     endpoint: config.wsAuthEndpoint,
   })
 
+  const authStore = authStoreModel.create({
+    loggedIn: false,
+  })
+
   authWs.subscribe((msg) => {
-    if (TokenModel.is(msg)) {
-      // use access token to authenticate appWs
-      // store refresh token in localStorage
+    if ('access_token' in msg && 'refresh_token' in msg) {
+      const urlWithToken = `${config.wsEndpoint}?Auth=${msg.access_token}`
+      ws.reconnectWithUrl(urlWithToken)
+      authStore.setLoggedIn(true)
+      window.localStorage.setItem('refresh_token', msg.refresh_token)
     }
   })
+
+  const storedRefreshToken = window.localStorage.getItem('refresh_token')
+  if (storedRefreshToken) {
+    authWs.sendMessage(refreshToken(storedRefreshToken))
+  }
 
   const loginWithCode = (email: string) => {
     authWs.sendMessage(initMagicLogin(email))
@@ -140,5 +153,10 @@ export const makeRootService = () => {
     events,
     resources,
     uploads,
+
+    // TODO: Auth services, move into an isolated module
+    loginWithCode,
+    completeLoginWithCode,
+    authStore,
   }
 }

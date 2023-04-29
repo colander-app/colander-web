@@ -1,5 +1,6 @@
 interface Dependencies {
   endpoint: string
+  autoConnect?: boolean
 }
 
 const MAGIC_RECONNECT_DELAY = 2000
@@ -17,12 +18,16 @@ const makeSubscribers = <T>() => {
   }
 }
 
-export const makeWebsocketService = ({ endpoint }: Dependencies) => {
+export const makeWebsocketService = ({
+  endpoint,
+  autoConnect = true,
+}: Dependencies) => {
   const messageSubscribers = makeSubscribers<any>()
   const statusSubscribers = makeSubscribers<boolean>()
   let ws: WebSocket | undefined
   let messageQueue: string[] = []
   let isOpened = false
+  let makeConnectionStale: undefined | (() => void)
 
   const sendMessage = (data: string | Record<string, any>) => {
     const msg = typeof data === 'string' ? data : JSON.stringify(data)
@@ -59,20 +64,36 @@ export const makeWebsocketService = ({ endpoint }: Dependencies) => {
     ws = undefined
   }
 
-  const createConnection = () => {
-    ws = new WebSocket(endpoint)
+  const createConnection = (url: string) => {
+    let stale = false
+    ws = new WebSocket(url)
     ws.binaryType = 'arraybuffer'
     ws.addEventListener('message', onMessageEvent)
     ws.addEventListener('open', onOpenEvent)
     ws.addEventListener('close', () => {
       onCloseEvent()
-      setTimeout(createConnection, MAGIC_RECONNECT_DELAY)
+      if (!stale) {
+        setTimeout(createConnection, MAGIC_RECONNECT_DELAY)
+      }
     })
+    return function makeStaleAndDisconnect() {
+      stale = true
+      ws?.close()
+    }
   }
-  createConnection()
+
+  const reconnectWithUrl = (url: string) => {
+    makeConnectionStale?.()
+    makeConnectionStale = createConnection(url)
+  }
+
+  if (autoConnect) {
+    makeConnectionStale = createConnection(endpoint)
+  }
 
   return {
     sendMessage,
+    reconnectWithUrl,
     subscribe: messageSubscribers.subscribe,
     subscribeStatus: statusSubscribers.subscribe,
   }

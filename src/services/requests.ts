@@ -15,6 +15,11 @@ export const completeMagicLogin = (email: string, code: string) => ({
   },
 })
 
+export const refreshToken = (refresh_token: string) => ({
+  action: 'refreshToken',
+  data: { refresh_token },
+})
+
 export const subscribeToEventRange = (query: QueryEventWindow) => ({
   action: 'subscribeToEventRange',
   query: {
