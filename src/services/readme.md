@@ -1,10 +1,8 @@
 # Colander Services
 
-## Front-End System Design
-
 ### Root Service
 
-Initializes the core services for the app. These services are exposed to react components through a react context. This design allows the services to follow the react app lifecycle, allowing services to be destroyed without full-reload of the app.
+Initializes the core services for the app which are exposed to components through a react context.
 
 ### Overview
 
