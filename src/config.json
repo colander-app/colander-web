@@ -1,4 +1,4 @@
 {
-  "wsEndpoint": "wss://ws.dev.colanderapp.io/dev",
-  "wsAuthEndpoint": "wss://auth.dev.colanderapp.io/dev"
+  "wsEndpoint": "wss://qx3g819k9l.execute-api.us-east-1.amazonaws.com/dev",
+  "wsAuthEndpoint": "wss://t6u3zbxjf9.execute-api.us-east-1.amazonaws.com/dev"
 }
