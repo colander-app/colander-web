@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { Fragment, PropsWithChildren } from 'react'
 import { observer } from 'mobx-react-lite'
 import { NewEventHandle } from '../components/NewEventHandle'

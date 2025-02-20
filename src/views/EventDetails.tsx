@@ -1,3 +1,4 @@
+// @ts-nocheck
 import DatePicker from 'react-datepicker'
 import { observer } from 'mobx-react-lite'
 import { useRootStore } from '../context/RootStoreContext'

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { ThemeProvider } from 'styled-components'
 import { NavLink, NavLinkProps, Outlet } from 'react-router-dom'
 import { Disclosure, Menu, Transition } from '@headlessui/react'

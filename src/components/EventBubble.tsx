@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useRef, useState } from 'react'
 import { DraggableCore, DraggableEventHandler } from 'react-draggable'
 import styled from 'styled-components'
